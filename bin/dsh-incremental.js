@@ -17,16 +17,17 @@ const help=`dsh-incremental 0.1.0 (Node >=22.13)
 
 Commands:
   doctor [--runtime-root PATH] [--json]
-  plan --repo PATH --manifest PATH [--state PATH] [--dsh-config PATH]
-  run --repo PATH --manifest PATH [--state PATH] [--full] [--dsh-config PATH]
-  resume --repo PATH --manifest PATH --run-id ID [--state PATH] [--dsh-config PATH]
+  plan --repo PATH --manifest PATH [--state PATH] (--dsh-config PATH | --fixture)
+  run --repo PATH --manifest PATH [--state PATH] [--full] (--dsh-config PATH | --fixture)
+  resume --repo PATH --manifest PATH --run-id ID [--state PATH] (--dsh-config PATH | --fixture)
   report --repo PATH [--run-id ID] [--state PATH] [--json]
   demo [--output PATH]
   benchmark [--output PATH] [--repetitions 3]
   benchmark --dsh-config PATH --allow-synthetic-remote [--output PATH]
   benchmark --paired-only --dsh-config PATH --allow-synthetic-remote [--output PATH]
 
-Without --dsh-config the executor is a deterministic synthetic fixture, NOT an AI reviewer.
+Review commands require --dsh-config; there is no default reviewer.
+--fixture explicitly selects a deterministic synthetic diagnostic, NOT an AI reviewer.
 Remote run requires human configuration with allowRemote and an exact approvedRepoRoot.
 Benchmark's remote flag authorizes only its generated synthetic repositories.
 State defaults to a per-user directory outside the reviewed repository.
@@ -38,7 +39,7 @@ let values,positionals,command;
 function parseOptions() {
   ({values,positionals}=parseArgs({allowPositionals:true,options:{
   help:{type:'boolean',short:'h'},repo:{type:'string'},manifest:{type:'string'},state:{type:'string'},
-  'dsh-config':{type:'string'},'runtime-root':{type:'string'},'run-id':{type:'string'},
+  'dsh-config':{type:'string'},fixture:{type:'boolean'},'runtime-root':{type:'string'},'run-id':{type:'string'},
   'credential-file':{type:'string'},
   output:{type:'string'},repetitions:{type:'string'},full:{type:'boolean'},json:{type:'boolean'},
   'allow-synthetic-remote':{type:'boolean'},
@@ -114,15 +115,19 @@ async function main() {
   if(positionals.length!==1)throw new Error('Unexpected positional arguments');
   const allowedOptions={
     doctor:['runtime-root','json','output'],
-    plan:['repo','manifest','state','dsh-config','credential-file','full','json','output'],
-    run:['repo','manifest','state','dsh-config','credential-file','full','json','output'],
-    resume:['repo','manifest','state','dsh-config','credential-file','full','run-id','json','output'],
+    plan:['repo','manifest','state','dsh-config','fixture','credential-file','full','json','output'],
+    run:['repo','manifest','state','dsh-config','fixture','credential-file','full','json','output'],
+    resume:['repo','manifest','state','dsh-config','fixture','credential-file','full','run-id','json','output'],
     report:['repo','state','run-id','json','output'],
     demo:['output'],
     benchmark:['output','repetitions','dsh-config','credential-file','allow-synthetic-remote','paired-only'],
   };
   if(!allowedOptions[command])throw new Error(`Unknown command ${command}`);
   for(const name of Object.keys(values))if(!allowedOptions[command].includes(name))throw new Error(`--${name} is not supported by ${command}`);
+  if(values.fixture&&values['dsh-config'])throw Object.assign(new Error('--fixture and --dsh-config are mutually exclusive'),{code:'EXECUTOR_CONFIGURATION_CONFLICT'});
+  if(['plan','run','resume'].includes(command)&&!values['dsh-config']&&!values.fixture) {
+    throw Object.assign(new Error(`${command} requires --dsh-config PATH for AI review; use --fixture only for explicit synthetic diagnostics`),{code:'MODEL_CONFIGURATION_REQUIRED'});
+  }
   if(values['credential-file']&&!values['dsh-config'])throw new Error('--credential-file requires --dsh-config');
   if(values['paired-only']&&Object.hasOwn(values,'repetitions'))throw new Error('--paired-only does not accept --repetitions');
   if(command==='doctor') {

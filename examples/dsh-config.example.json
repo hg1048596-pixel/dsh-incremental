@@ -11,6 +11,10 @@
   "credentialEnv": "DEEPSEEK_API_KEY",
   "allowRemote": false,
   "approvedRepoRoot": "C:\\work\\sample",
+  "reusePolicy": {
+    "mode": "visible-model",
+    "maxAgeMs": 86400000
+  },
   "maxTokens": 4096,
   "maxRequests": 48,
   "timeoutMs": 120000

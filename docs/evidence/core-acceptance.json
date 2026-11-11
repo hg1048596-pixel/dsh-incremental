@@ -1,0 +1,2837 @@
+{
+  "schemaVersion": 1,
+  "kind": "dsh-incremental-core-acceptance-evidence",
+  "projection": {
+    "method": "Explicit allowlist projection of existing local core acceptance records; no new model calls.",
+    "excluded": [
+      "absolute host paths",
+      "credential configuration and references",
+      "filesystem ownership, ACLs and SIDs",
+      "security configuration",
+      "full requests and prompt bodies",
+      "raw cache objects"
+    ],
+    "semanticValidation": "Source-evidence validation and fixed-reference coverage do not establish conclusion correctness, completeness, precision, or equivalence.",
+    "metadataAccounting": "Advertised-route metadata requests are recorded separately from review model calls and do not establish an immutable model revision.",
+    "missingValues": "Unknown provider usage fields remain null; not-run stages have no report or score."
+  },
+  "accounting": {
+    "modelCallsInRetainedAttempts": 10,
+    "advertisedRouteMetadataRequests": 4,
+    "historicalExperimentModelCalls": 46,
+    "earlierSmokeModelCalls": 2,
+    "cumulativeModelCalls": 58,
+    "authorizedCumulativeMaxModelCalls": 58,
+    "sessionAccountingNote": "The 58-call session ledger comprises 46 historical experiment calls, two earlier smoke calls, four calls in the retained failed core attempt, and six in the passed attempt. This file exports only the two core attempts."
+  },
+  "attempts": [
+    {
+      "id": "run-6gQjkT",
+      "status": "failed",
+      "startedAt": "2026-11-11T15:21:03.998Z",
+      "finishedAt": "2026-11-11T15:21:44.460Z",
+      "errorCode": null,
+      "source": {
+        "path": "artifacts/core-acceptance/run-6gQjkT/acceptance.json",
+        "sha256": "c830930865aca837818ebbd76c1435a2e602055d682b3aa520ed16d3bbcd6ebd"
+      },
+      "sourceReference": {
+        "path": "artifacts/core-acceptance/run-6gQjkT/ground-truth.json",
+        "sha256": "f49a3b91dd035387c117d4dc17ecaf6a7f9f150422e197176cbe8e50cb18325a",
+        "notice": "Scoring reference outside the reviewed repository. It is never included in review requests. Matching checks these pre-fixed source locations and evidence, not completeness of semantic review.",
+        "outsideReviewedRepository": true
+      },
+      "dispatchLedger": {
+        "path": "artifacts/core-acceptance/run-6gQjkT/dispatch-ledger.jsonl",
+        "sha256": "df3f316b21eb6af08c02793804bc39c8d7d3319153b3ce7102ea672f902ec93c",
+        "durableDispatchAttempts": 4
+      },
+      "runtime": {
+        "dshVersion": "0.1.0-rc.6",
+        "nodeVersion": "22.23.2"
+      },
+      "controls": {
+        "maxTokens": 4096,
+        "timeoutMs": 120000,
+        "concurrency": 1,
+        "retries": 0
+      },
+      "reusePolicy": {
+        "mode": "visible-model",
+        "maxAgeMs": 86400000
+      },
+      "acceptedRisks": [
+        "model_revision_unverified",
+        "provider_update_undetectable"
+      ],
+      "checks": {
+        "allStagesPassed": false,
+        "unchangedKeepsAllVersions": false,
+        "unaffectedVersionsKept": false,
+        "affectedVersionsReplaced": false,
+        "exactlySixRealModelCalls": false,
+        "sixDurableDispatchAttempts": false,
+        "sharedBudgetRespected": true,
+        "freshRepositoryOutsideCache": true,
+        "builtinSourceReferenceValidated": true,
+        "initialMatchesBuiltinReference": true,
+        "pricingFixedMatchesBuiltinReferenceBeforeProvider": true,
+        "initialSnapshotRestoredBeforeProvider": true,
+        "providerInputsGuardedByBuiltinHashes": true,
+        "onlyDeclaredPricingSourceChanged": false,
+        "allConsumedSnapshotsVerified": false,
+        "noFatalError": true
+      },
+      "accounting": {
+        "modelCalls": 4,
+        "advertisedRouteMetadataRequests": 1,
+        "maxCallsForAttempt": 8
+      },
+      "stages": [
+        {
+          "stage": "initial",
+          "status": "failed",
+          "checks": {
+            "completed": true,
+            "allFourTasksPresent": true,
+            "expectedExecutions": true,
+            "expectedReuses": true,
+            "expectedModelCalls": true,
+            "realOfficialDshIdentity": true,
+            "explicitVisibleModelPolicy": true,
+            "advertisedRouteObserved": true,
+            "noUnknownCallCounts": true,
+            "noFailedBlockedOrCancelled": true,
+            "currentSourceValid": true,
+            "perTaskCallsConsistent": true,
+            "reportedTaskTotalsConsistent": true,
+            "allResultsReusable": false,
+            "unknownRevisionRisksRecorded": true,
+            "reusedResultsWithinTtl": true,
+            "usageRecordedForExecutions": true,
+            "noNewUsageOnReuse": true
+          },
+          "sourceSnapshot": "initial",
+          "source": {
+            "path": "artifacts/core-acceptance/run-6gQjkT/initial.report.json",
+            "sha256": "1f42f8b15367b16eacd93e751de9ead8dc36581c276a531e19b172e2b024fec1"
+          },
+          "score": {
+            "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+            "summaryAvailable": true,
+            "summaryCurrentSourceValid": true,
+            "expectedCount": 3,
+            "observedUniqueCount": 3,
+            "matchedCount": 3,
+            "knownFindingCoverage": 1,
+            "matchedIds": [
+              "auth-substring-role",
+              "pricing-negative-quantity",
+              "pagination-absolute-end"
+            ],
+            "missingIds": [],
+            "unmatchedFindings": []
+          },
+          "report": {
+            "schemaVersion": 1,
+            "runId": "109b8161-23db-4fe0-ba2c-563262c7081b",
+            "startedAt": "2026-11-11T15:21:04.087Z",
+            "finishedAt": "2026-11-11T15:21:44.394Z",
+            "manifestDigest": "c2fce72dd3ad38370edbf19cafc49608be86eb4632571b6e0cbb38a2f3a2e4fd",
+            "mode": "incremental",
+            "status": "completed",
+            "scope": "Declared immutable inputs only; cache validity is not conclusion correctness.",
+            "executor": {
+              "kind": "dsh",
+              "version": "0.1.0-rc.6",
+              "adapter": "deepseek",
+              "isolation": "independent_cordis_root",
+              "protocol": "structured_review_v1",
+              "runnerHash": "f2a41327b7619a1c276fd4d986fbb2b804ac0ef083b7f5dc205b76eb7d0ffbc5",
+              "maxTokens": 4096,
+              "timeoutMs": 120000,
+              "model": {
+                "provider": "deepseek-official",
+                "id": "deepseek-flash",
+                "immutableRevision": null,
+                "assurance": "configured-visible-route",
+                "risks": [
+                  "model_revision_unverified",
+                  "provider_update_undetectable"
+                ]
+              },
+              "advertisedModel": {
+                "id": "deepseek-flash",
+                "name": "DeepSeek-V4.1-Flash",
+                "owned_by": "deepseek"
+              },
+              "connection": {
+                "adapter": "deepseek",
+                "thinking": "disabled",
+                "reasoningEffort": "off"
+              },
+              "runtimeHashes": {
+                "@deepseek-ai/dsh-llm": "7e02740f9b10cfb965453ca26eb23795c4e8dc818038dd2c0f80aaade0100ea1",
+                "@deepseek-ai/dsh-llm-deepseek": "093f80a934f1ecc0791599a9114caed85ab5e6fe1da5ab8d29639cad33b5d377"
+              }
+            },
+            "reusePolicy": {
+              "mode": "visible-model",
+              "maxAgeMs": 86400000
+            },
+            "identityObservation": {
+              "kind": "advertised_route",
+              "status": "observed",
+              "observedAt": "2026-11-11T15:21:04.373Z",
+              "requestCount": 1,
+              "risks": [
+                "model_revision_unverified",
+                "provider_update_undetectable"
+              ]
+            },
+            "tasks": [
+              {
+                "taskId": "auth",
+                "status": "executed",
+                "resultVersion": "fd4ebcdd-3028-4244-afec-cd9bef08c97a",
+                "reasons": [
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied function violates the stated contract: the comment requires only an exact 'admin' role to grant permission, but line 7 uses substring matching via includes('admin'), so role strings containing 'admin' as a substring (e.g. 'not-an-admin', 'admin_readonly', 'superadmin') would return true instead of false. The guard for missing user and non-array roles is correct.",
+                  "findings": [
+                    {
+                      "title": "Substring role match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Contents of any role-assignment system that determines the set of role strings passed at runtime (explicitly out of scope, and not supplied)."
+                  ],
+                  "limitations": [
+                    "Only src/auth.js was supplied; no callers or role definitions were examined, so the practical set of role strings reaching this function is unknown.",
+                    "The contract states roles is an array of strings; behavior for non-string elements is not evaluated.",
+                    "No tests were run and correctness is not verified; conclusions are limited to the supplied text."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 343,
+                  "outputTokens": 249,
+                  "cacheReadTokens": 384,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Contents of any role-assignment system that determines the set of role strings passed at runtime (explicitly out of scope, and not supplied)."
+                    }
+                  ],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 10654.854800000003,
+                  "snapshotMs": 8000.728700000005,
+                  "executionMs": 2465.6004000000003,
+                  "cacheMs": 141.87049999999908
+                },
+                "inputSnapshot": {
+                  "digest": "d0819093d6994779e33f8c53a54d10ca99b5f2d236eec25df486dfe31e96a787",
+                  "files": [
+                    {
+                      "path": "src/auth.js",
+                      "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+                      "bytes": 248
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "pricing",
+                "status": "executed",
+                "resultVersion": "f1cb3f04-8a32-46e3-83ea-8f0517874172",
+                "reasons": [
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied function enforces the nonfinite/negative unitPrice checks, but its quantity validation only checks Number.isInteger(quantity), which accepts negative integers. This violates the stated contract that every direct call must reject a negative quantity regardless of callers. The accepted-input arithmetic matches the specified Math.round(unitPrice * quantity * 100) / 100 rule.",
+                  "findings": [
+                    {
+                      "title": "Negative quantity is accepted despite contract requiring rejection",
+                      "evidence": "if (!Number.isInteger(quantity)) {",
+                      "severity": "high",
+                      "path": "src/pricing.js",
+                      "line": 6
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Review is limited to the single supplied file src/pricing.js; no callers or repository-wide behavior were examined.",
+                    "The conclusion about the negative-quantity violation is based solely on the supplied validation code and the stated local contract; no tests were run."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 217,
+                  "outputTokens": 184,
+                  "cacheReadTokens": 640,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 9227.028799999998,
+                  "snapshotMs": 7182.307400000003,
+                  "executionMs": 1883.1443999999992,
+                  "cacheMs": 121.30069999999796
+                },
+                "inputSnapshot": {
+                  "digest": "25ba279cd7d1a3b5a932c62074e333e56d826081e7d487ef77ec06e345fb3893",
+                  "files": [
+                    {
+                      "path": "src/pricing.js",
+                      "sha256": "e1a9f20c15e7367d21629aba90e4721419302b384820fa43ab32680005ae33cf",
+                      "bytes": 414
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "pagination",
+                "status": "executed",
+                "resultVersion": "ac3c3525-3cf6-47aa-927d-df4311f1e920",
+                "reasons": [
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The slice call in src/pagination.js does not implement the stated page contract: it passes pageSize as the slice end index instead of offset + pageSize, so every page except page 1 returns fewer than pageSize elements (and page 1 returns a single element). Input validation, input immutability and the past-the-end behavior follow from the contract, but the pagination bounds are wrong.",
+                  "findings": [
+                    {
+                      "title": "slice end index is pageSize rather than offset + pageSize, breaking the page contents contract",
+                      "evidence": "return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only src/pagination.js was supplied; no tests, callers or other files were examined, and the function was not executed.",
+                    "Findings are based solely on reading the supplied source and the local contract description."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 399,
+                  "outputTokens": 193,
+                  "cacheReadTokens": 512,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 10030.088200000002,
+                  "snapshotMs": 7905.749900000006,
+                  "executionMs": 1948.0212000000029,
+                  "cacheMs": 132.62880000000223
+                },
+                "inputSnapshot": {
+                  "digest": "4625e084110cd286ef63a833d08bc421d676c41af1e7a035836cc869f79b626d",
+                  "files": [
+                    {
+                      "path": "src/pagination.js",
+                      "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+                      "bytes": 449
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "summary",
+                "status": "executed",
+                "resultVersion": "2a8d3d81-7625-4fd2-b716-1e7d8d077860",
+                "reasons": [
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream auth did not reuse its previous result",
+                    "sourceTaskId": "auth"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pricing did not reuse its previous result",
+                    "sourceTaskId": "pricing"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pagination did not reuse its previous result",
+                    "sourceTaskId": "pagination"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "All three supplied upstream results report high-severity contract violations in their explicitly scoped local files; no duplicate findings were present. src/auth.js: line 7 uses substring role matching, so role strings containing 'admin' as a substring would be granted permission even though the contract requires an exact 'admin' match. src/pricing.js: line 6 validates quantity only with Number.isInteger(quantity), so negative integers are accepted despite the contract requiring rejection of negative quantities; the nonfinite/negative unitPrice checks and the specified rounding arithmetic otherwise match. src/pagination.js: line 11 passes pageSize as the slice end index instead of offset + pageSize, so page contents do not satisfy the stated page contract. Each conclusion is limited to the supplied source and contract text; no tests were run and correctness is not verified.",
+                  "findings": [
+                    {
+                      "title": "Substring role match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    },
+                    {
+                      "title": "Negative quantity is accepted despite contract requiring rejection",
+                      "evidence": "if (!Number.isInteger(quantity)) {",
+                      "severity": "high",
+                      "path": "src/pricing.js",
+                      "line": 6
+                    },
+                    {
+                      "title": "slice end index is pageSize rather than offset + pageSize, breaking the page contents contract",
+                      "evidence": "return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Contents of any role-assignment system that determines the set of role strings passed at runtime (explicitly out of scope, and not supplied)."
+                  ],
+                  "limitations": [
+                    "Only src/auth.js was supplied; no callers or role definitions were examined, so the practical set of role strings reaching this function is unknown.",
+                    "The contract states roles is an array of strings; behavior for non-string elements is not evaluated.",
+                    "No tests were run and correctness is not verified; conclusions are limited to the supplied text.",
+                    "Review is limited to the single supplied file src/pricing.js; no callers or repository-wide behavior were examined.",
+                    "The conclusion about the negative-quantity violation is based solely on the supplied validation code and the stated local contract; no tests were run.",
+                    "Only src/pagination.js was supplied; no tests, callers or other files were examined, and the function was not executed.",
+                    "Findings are based solely on reading the supplied source and the local contract description."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 1010,
+                  "outputTokens": 522,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Contents of any role-assignment system that determines the set of role strings passed at runtime (explicitly out of scope, and not supplied)."
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream auth is not eligible for reuse",
+                      "sourceTaskId": "auth"
+                    }
+                  ],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 9631.294500000004,
+                  "snapshotMs": 6826.546900000005,
+                  "executionMs": 2655.5579999999973,
+                  "cacheMs": 107.42069999999876
+                },
+                "inputSnapshot": {
+                  "digest": "7effc0447312eedae06c4fc967336a241ca4586afa9fc73bc477dd7348387213",
+                  "files": [],
+                  "directories": []
+                },
+                "upstreamVersions": {
+                  "auth": "fd4ebcdd-3028-4244-afec-cd9bef08c97a",
+                  "pricing": "f1cb3f04-8a32-46e3-83ea-8f0517874172",
+                  "pagination": "ac3c3525-3cf6-47aa-927d-df4311f1e920"
+                },
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              }
+            ],
+            "totals": {
+              "executed": 4,
+              "reused": 0,
+              "failed": 0,
+              "blocked": 0,
+              "cancelled": 0,
+              "modelCalls": 4,
+              "knownModelCalls": 4,
+              "unknownCallCounts": 0,
+              "identityMs": 287.84540000000015,
+              "totalMs": 40307.39599999999,
+              "snapshotMs": 29915.33290000002,
+              "executionMs": 8952.324,
+              "cacheMs": 503.22069999999803,
+              "usage": {
+                "inputTokens": 1969,
+                "outputTokens": 1148,
+                "cacheReadTokens": 1664,
+                "cacheWriteTokens": null,
+                "reasoningTokens": null,
+                "totalTokens": null
+              }
+            }
+          }
+        },
+        {
+          "stage": "unchanged",
+          "status": "not-run",
+          "checks": {
+            "completed": false,
+            "allFourTasksPresent": false,
+            "expectedExecutions": true,
+            "expectedReuses": false,
+            "expectedModelCalls": false,
+            "realOfficialDshIdentity": false,
+            "explicitVisibleModelPolicy": false,
+            "advertisedRouteObserved": false,
+            "noUnknownCallCounts": false,
+            "noFailedBlockedOrCancelled": false,
+            "currentSourceValid": false,
+            "perTaskCallsConsistent": false,
+            "reportedTaskTotalsConsistent": false,
+            "allResultsReusable": false,
+            "unknownRevisionRisksRecorded": false,
+            "reusedResultsWithinTtl": true,
+            "usageRecordedForExecutions": true,
+            "noNewUsageOnReuse": true
+          },
+          "sourceSnapshot": null,
+          "source": null,
+          "score": null,
+          "report": null
+        },
+        {
+          "stage": "pricing-changed",
+          "status": "not-run",
+          "checks": {
+            "completed": false,
+            "allFourTasksPresent": false,
+            "expectedExecutions": false,
+            "expectedReuses": false,
+            "expectedModelCalls": false,
+            "realOfficialDshIdentity": false,
+            "explicitVisibleModelPolicy": false,
+            "advertisedRouteObserved": false,
+            "noUnknownCallCounts": false,
+            "noFailedBlockedOrCancelled": false,
+            "currentSourceValid": false,
+            "perTaskCallsConsistent": false,
+            "reportedTaskTotalsConsistent": false,
+            "allResultsReusable": false,
+            "unknownRevisionRisksRecorded": false,
+            "reusedResultsWithinTtl": true,
+            "usageRecordedForExecutions": true,
+            "noNewUsageOnReuse": true
+          },
+          "sourceSnapshot": null,
+          "source": null,
+          "score": null,
+          "report": null
+        }
+      ],
+      "limitations": [
+        "Passing demonstrates real cache reuse and selective invalidation on this small example only.",
+        "It does not establish review correctness, immutable model identity, or performance on arbitrary repositories.",
+        "The provider may change an immutable model revision behind the same visible model ID within the TTL."
+      ]
+    },
+    {
+      "id": "run-02FG6R",
+      "status": "passed",
+      "startedAt": "2026-11-11T15:24:21.455Z",
+      "finishedAt": "2026-11-11T15:25:45.092Z",
+      "errorCode": null,
+      "source": {
+        "path": "artifacts/core-acceptance/run-02FG6R/acceptance.json",
+        "sha256": "d36d856326f43a11b67473c8e2922d6e5b8a1af0603aeef679867670c5f656c8"
+      },
+      "sourceReference": {
+        "path": "artifacts/core-acceptance/run-02FG6R/ground-truth.json",
+        "sha256": "f49a3b91dd035387c117d4dc17ecaf6a7f9f150422e197176cbe8e50cb18325a",
+        "notice": "Scoring reference outside the reviewed repository. It is never included in review requests. Matching checks these pre-fixed source locations and evidence, not completeness of semantic review.",
+        "outsideReviewedRepository": true
+      },
+      "dispatchLedger": {
+        "path": "artifacts/core-acceptance/run-02FG6R/dispatch-ledger.jsonl",
+        "sha256": "d06bbdcf46b69a785e0f1f2a9ede3bf149e718cc620d80bc9575730a80030d82",
+        "durableDispatchAttempts": 6
+      },
+      "runtime": {
+        "dshVersion": "0.1.0-rc.6",
+        "nodeVersion": "22.23.2"
+      },
+      "controls": {
+        "maxTokens": 4096,
+        "timeoutMs": 120000,
+        "concurrency": 1,
+        "retries": 0
+      },
+      "reusePolicy": {
+        "mode": "visible-model",
+        "maxAgeMs": 86400000
+      },
+      "acceptedRisks": [
+        "model_revision_unverified",
+        "provider_update_undetectable"
+      ],
+      "checks": {
+        "allStagesPassed": true,
+        "unchangedKeepsAllVersions": true,
+        "unaffectedVersionsKept": true,
+        "affectedVersionsReplaced": true,
+        "exactlySixRealModelCalls": true,
+        "sixDurableDispatchAttempts": true,
+        "sharedBudgetRespected": true,
+        "freshRepositoryOutsideCache": true,
+        "builtinSourceReferenceValidated": true,
+        "initialMatchesBuiltinReference": true,
+        "pricingFixedMatchesBuiltinReferenceBeforeProvider": true,
+        "initialSnapshotRestoredBeforeProvider": true,
+        "providerInputsGuardedByBuiltinHashes": true,
+        "onlyDeclaredPricingSourceChanged": true,
+        "allConsumedSnapshotsVerified": true,
+        "noFatalError": true
+      },
+      "accounting": {
+        "modelCalls": 6,
+        "advertisedRouteMetadataRequests": 3,
+        "maxCallsForAttempt": 6
+      },
+      "stages": [
+        {
+          "stage": "initial",
+          "status": "passed",
+          "checks": {
+            "completed": true,
+            "allFourTasksPresent": true,
+            "expectedExecutions": true,
+            "expectedReuses": true,
+            "expectedModelCalls": true,
+            "realOfficialDshIdentity": true,
+            "explicitVisibleModelPolicy": true,
+            "advertisedRouteObserved": true,
+            "noUnknownCallCounts": true,
+            "noFailedBlockedOrCancelled": true,
+            "currentSourceValid": true,
+            "perTaskCallsConsistent": true,
+            "reportedTaskTotalsConsistent": true,
+            "allResultsReusable": true,
+            "unknownRevisionRisksRecorded": true,
+            "reusedResultsWithinTtl": true,
+            "usageRecordedForExecutions": true,
+            "noNewUsageOnReuse": true
+          },
+          "sourceSnapshot": "initial",
+          "source": {
+            "path": "artifacts/core-acceptance/run-02FG6R/initial.report.json",
+            "sha256": "ee6bbca35d7a8ac023ad39857cc717b57040ee64021712a986bda878251c2886"
+          },
+          "score": {
+            "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+            "summaryAvailable": true,
+            "summaryCurrentSourceValid": true,
+            "expectedCount": 3,
+            "observedUniqueCount": 3,
+            "matchedCount": 3,
+            "knownFindingCoverage": 1,
+            "matchedIds": [
+              "auth-substring-role",
+              "pricing-negative-quantity",
+              "pagination-absolute-end"
+            ],
+            "missingIds": [],
+            "unmatchedFindings": []
+          },
+          "report": {
+            "schemaVersion": 1,
+            "runId": "d1b0bc4e-4785-4ac4-867f-007b2f888925",
+            "startedAt": "2026-11-11T15:24:21.522Z",
+            "finishedAt": "2026-11-11T15:24:57.742Z",
+            "manifestDigest": "c2fce72dd3ad38370edbf19cafc49608be86eb4632571b6e0cbb38a2f3a2e4fd",
+            "mode": "incremental",
+            "status": "completed",
+            "scope": "Declared immutable inputs only; cache validity is not conclusion correctness.",
+            "executor": {
+              "kind": "dsh",
+              "version": "0.1.0-rc.6",
+              "adapter": "deepseek",
+              "isolation": "independent_cordis_root",
+              "protocol": "structured_review_v1",
+              "runnerHash": "f2a41327b7619a1c276fd4d986fbb2b804ac0ef083b7f5dc205b76eb7d0ffbc5",
+              "maxTokens": 4096,
+              "timeoutMs": 120000,
+              "model": {
+                "provider": "deepseek-official",
+                "id": "deepseek-flash",
+                "immutableRevision": null,
+                "assurance": "configured-visible-route",
+                "risks": [
+                  "model_revision_unverified",
+                  "provider_update_undetectable"
+                ]
+              },
+              "advertisedModel": {
+                "id": "deepseek-flash",
+                "name": "DeepSeek-V4.1-Flash",
+                "owned_by": "deepseek"
+              },
+              "connection": {
+                "adapter": "deepseek",
+                "thinking": "disabled",
+                "reasoningEffort": "off"
+              },
+              "runtimeHashes": {
+                "@deepseek-ai/dsh-llm": "7e02740f9b10cfb965453ca26eb23795c4e8dc818038dd2c0f80aaade0100ea1",
+                "@deepseek-ai/dsh-llm-deepseek": "093f80a934f1ecc0791599a9114caed85ab5e6fe1da5ab8d29639cad33b5d377"
+              }
+            },
+            "reusePolicy": {
+              "mode": "visible-model",
+              "maxAgeMs": 86400000
+            },
+            "identityObservation": {
+              "kind": "advertised_route",
+              "status": "observed",
+              "observedAt": "2026-11-11T15:24:21.824Z",
+              "requestCount": 1,
+              "risks": [
+                "model_revision_unverified",
+                "provider_update_undetectable"
+              ]
+            },
+            "tasks": [
+              {
+                "taskId": "auth",
+                "status": "executed",
+                "resultVersion": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                "reasons": [
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied `canManageAccount` implementation violates the stated local contract: it uses substring matching (`role.includes('admin')`) instead of exact equality, so role strings such as `'superadmin'`, `'admin-readonly'`, or `'not-an-admin'` would grant permission even though the contract states only a role exactly equal to `'admin'` should grant permission. It may also throw if the roles array contains a non-string element, but that domain is outside the declared contract (array of strings). The missing-user and non-array branches correctly return false.",
+                  "findings": [
+                    {
+                      "title": "Substring match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "The file's doc comment states \"Only the exact admin role grants permission\", but the body uses substring matching; the finding relies on the task-supplied contract, not on caller behavior.",
+                    "Caller-side filtering, role-assignment systems, and any wider authorization behavior across other files are outside this review and were not examined.",
+                    "Behavior for non-string entries in `user.roles` (e.g., where `.includes` might behave unexpectedly or throw) is outside the declared input domain ('array of strings') and is not assessed as a contract violation.",
+                    "No tests were run and no execution was performed; conclusions are limited to the supplied source text."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 793,
+                  "outputTokens": 317,
+                  "cacheReadTokens": 0,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 9916.5886,
+                  "snapshotMs": 7087.1157,
+                  "executionMs": 2737.9012999999995,
+                  "cacheMs": 64.39819999999872
+                },
+                "inputSnapshot": {
+                  "digest": "c0bbe28d1245b54e88f482a5433aadb97ec4c2cd4bda0a420b36319a4bcc48ba",
+                  "files": [
+                    {
+                      "path": "src/auth.js",
+                      "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+                      "bytes": 248
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "pricing",
+                "status": "executed",
+                "resultVersion": "e66da7c3-06e1-4117-9c9b-0617eec66b7b",
+                "reasons": [
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied pricing function enforces the unitPrice half of the stated contract (rejects nonfinite or negative unitPrice) but does not enforce the quantity half: it rejects only noninteger quantity, so negative integers pass validation and produce a negative total. The accepted-input arithmetic matches the specified rule exactly.",
+                  "findings": [
+                    {
+                      "title": "Negative integer quantities are accepted, violating the validation contract",
+                      "evidence": "if (!Number.isInteger(quantity)) {",
+                      "severity": "high",
+                      "path": "src/pricing.js",
+                      "line": 6
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only the supplied src/pricing.js bytes were reviewed; no tests were run and correctness was not verified by execution.",
+                    "Wider financial policy, alternative currency standards, transaction limits, and caller reachability are outside scope per the task definition.",
+                    "Behavior of inputs such as NaN for quantity is not separately assessed beyond the visible Number.isInteger check, which returns false for NaN."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 795,
+                  "outputTokens": 196,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 8312.349499999998,
+                  "snapshotMs": 6128.915400000002,
+                  "executionMs": 2093.981099999999,
+                  "cacheMs": 61.34699999999975
+                },
+                "inputSnapshot": {
+                  "digest": "cb6197845d9a0166bad16c54cf3b585e81228d889da585135939b3ef08e43953",
+                  "files": [
+                    {
+                      "path": "src/pricing.js",
+                      "sha256": "e1a9f20c15e7367d21629aba90e4721419302b384820fa43ab32680005ae33cf",
+                      "bytes": 414
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "pagination",
+                "status": "executed",
+                "resultVersion": "78b4cb92-235b-4a90-9a85-2edd155f950f",
+                "reasons": [
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied `paginate` implementation has a contract violation: the slice end index is passed as `pageSize` rather than `offset + pageSize`, so pages after the first return the wrong window of elements (only page 1 behaves correctly, and it happens to work because offset is 0). Validation of the array, page, and pageSize parameters matches the stated invalid-input rules, and `slice` preserves order and does not mutate the input.",
+                  "findings": [
+                    {
+                      "title": "Slice end bound uses pageSize instead of offset + pageSize, corrupting all pages after the first",
+                      "evidence": "  return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only src/pagination.js was supplied; no callers, tests, or runtime behavior were examined.",
+                    "No execution was performed, so the finding is based on reading the slice semantics of the supplied source, not on observed output.",
+                    "Behavior for arrays with holes or non-plain arrays (objects with length) is outside the plain-array contract and not assessed beyond the Array.isArray check.",
+                    "Very large `page * pageSize` values causing precision loss are not addressed by the stated contract."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 849,
+                  "outputTokens": 264,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 7943.120800000004,
+                  "snapshotMs": 5625.599600000005,
+                  "executionMs": 2227.5795999999973,
+                  "cacheMs": 68.7554999999993
+                },
+                "inputSnapshot": {
+                  "digest": "4c181f32f568d61dae147e26cdd13a9b62be4e3c83cfcb93b5989b64451630bf",
+                  "files": [
+                    {
+                      "path": "src/pagination.js",
+                      "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+                      "bytes": 449
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "summary",
+                "status": "executed",
+                "resultVersion": "743726f0-a814-41d3-b6bc-34dab056bdf3",
+                "reasons": [
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream auth did not reuse its previous result",
+                    "sourceTaskId": "auth"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pricing did not reuse its previous result",
+                    "sourceTaskId": "pricing"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pagination did not reuse its previous result",
+                    "sourceTaskId": "pagination"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "Supplied upstream checks report three high-severity local contract violations in three files, each based only on the supplied source text with no execution performed. auth: `canManageAccount` uses substring matching (`role.includes('admin')`) instead of exact equality, so roles such as 'superadmin' or 'not-an-admin' would grant permission contrary to the stated exact-admin contract; missing-user and non-array branches return false, and non-string role entries are outside the declared array-of-strings domain. pagination: `paginate` passes `pageSize` as the slice end index instead of `offset + pageSize`, so pages after the first return the wrong window (page 1 works because offset is 0); array/page/pageSize validation matches the stated invalid-input rules and slice preserves order without mutating input. pricing: the function rejects nonfinite or negative unitPrice but validates quantity only with `Number.isInteger(quantity)`, so negative integers pass and yield a negative total; arithmetic on accepted inputs matches the specified rule. Validation notes are descriptive context, not additional findings. Duplicate findings: none (the three findings are distinct paths/lines). Unknown dependencies: none declared upstream.",
+                  "findings": [
+                    {
+                      "title": "Substring match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    },
+                    {
+                      "title": "Slice end bound uses pageSize instead of offset + pageSize, corrupting all pages after the first",
+                      "evidence": "  return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    },
+                    {
+                      "title": "Negative integer quantities are accepted, violating the validation contract",
+                      "evidence": "if (!Number.isInteger(quantity)) {",
+                      "severity": "high",
+                      "path": "src/pricing.js",
+                      "line": 6
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "auth: The file's doc comment states \"Only the exact admin role grants permission\", but the body uses substring matching; the finding relies on the task-supplied contract, not on caller behavior.",
+                    "auth: Caller-side filtering, role-assignment systems, and any wider authorization behavior across other files are outside this review and were not examined.",
+                    "auth: Behavior for non-string entries in `user.roles` (e.g., where `.includes` might behave unexpectedly or throw) is outside the declared input domain ('array of strings') and is not assessed as a contract violation.",
+                    "auth: No tests were run and no execution was performed; conclusions are limited to the supplied source text.",
+                    "pagination: Only src/pagination.js was supplied; no callers, tests, or runtime behavior were examined.",
+                    "pagination: No execution was performed, so the finding is based on reading the slice semantics of the supplied source, not on observed output.",
+                    "pagination: Behavior for arrays with holes or non-plain arrays (objects with length) is outside the plain-array contract and not assessed beyond the Array.isArray check.",
+                    "pagination: Very large `page * pageSize` values causing precision loss are not addressed by the stated contract.",
+                    "pricing: Only the supplied src/pricing.js bytes were reviewed; no tests were run and correctness was not verified by execution.",
+                    "pricing: Wider financial policy, alternative currency standards, transaction limits, and caller reachability are outside scope per the task definition.",
+                    "pricing: Behavior of inputs such as NaN for quantity is not separately assessed beyond the visible Number.isInteger check, which returns false for NaN."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 1232,
+                  "outputTokens": 741,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 9458.993299999998,
+                  "snapshotMs": 5956.414900000003,
+                  "executionMs": 3409.197899999999,
+                  "cacheMs": 70.59999999999854
+                },
+                "inputSnapshot": {
+                  "digest": "d20f5c7a9b78dae89376ea385e68d4ea4d2ae281eda7b7d53dbd6064864d2ccd",
+                  "files": [],
+                  "directories": []
+                },
+                "upstreamVersions": {
+                  "auth": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                  "pricing": "e66da7c3-06e1-4117-9c9b-0617eec66b7b",
+                  "pagination": "78b4cb92-235b-4a90-9a85-2edd155f950f"
+                },
+                "cacheCheck": null,
+                "reusedFrom": null,
+                "error": null
+              }
+            ],
+            "totals": {
+              "executed": 4,
+              "reused": 0,
+              "failed": 0,
+              "blocked": 0,
+              "cancelled": 0,
+              "modelCalls": 4,
+              "knownModelCalls": 4,
+              "unknownCallCounts": 0,
+              "identityMs": 302.52199999999993,
+              "totalMs": 36219.5929,
+              "snapshotMs": 24798.045600000012,
+              "executionMs": 10468.659899999995,
+              "cacheMs": 265.1006999999963,
+              "usage": {
+                "inputTokens": 3669,
+                "outputTokens": 1518,
+                "cacheReadTokens": 384,
+                "cacheWriteTokens": null,
+                "reasoningTokens": null,
+                "totalTokens": null
+              }
+            }
+          }
+        },
+        {
+          "stage": "unchanged",
+          "status": "passed",
+          "checks": {
+            "completed": true,
+            "allFourTasksPresent": true,
+            "expectedExecutions": true,
+            "expectedReuses": true,
+            "expectedModelCalls": true,
+            "realOfficialDshIdentity": true,
+            "explicitVisibleModelPolicy": true,
+            "advertisedRouteObserved": true,
+            "noUnknownCallCounts": true,
+            "noFailedBlockedOrCancelled": true,
+            "currentSourceValid": true,
+            "perTaskCallsConsistent": true,
+            "reportedTaskTotalsConsistent": true,
+            "allResultsReusable": true,
+            "unknownRevisionRisksRecorded": true,
+            "reusedResultsWithinTtl": true,
+            "usageRecordedForExecutions": true,
+            "noNewUsageOnReuse": true
+          },
+          "sourceSnapshot": "initial",
+          "source": {
+            "path": "artifacts/core-acceptance/run-02FG6R/unchanged.report.json",
+            "sha256": "9f7ade551c5ef3bdd7c2fcdac34508960a56a593352737986a3f9e7a3ff6e326"
+          },
+          "score": {
+            "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+            "summaryAvailable": true,
+            "summaryCurrentSourceValid": true,
+            "expectedCount": 3,
+            "observedUniqueCount": 3,
+            "matchedCount": 3,
+            "knownFindingCoverage": 1,
+            "matchedIds": [
+              "auth-substring-role",
+              "pricing-negative-quantity",
+              "pagination-absolute-end"
+            ],
+            "missingIds": [],
+            "unmatchedFindings": []
+          },
+          "report": {
+            "schemaVersion": 1,
+            "runId": "4aec724a-d147-4861-ad88-c28e4e74ee2c",
+            "startedAt": "2026-11-11T15:24:57.840Z",
+            "finishedAt": "2026-11-11T15:25:15.183Z",
+            "manifestDigest": "c2fce72dd3ad38370edbf19cafc49608be86eb4632571b6e0cbb38a2f3a2e4fd",
+            "mode": "incremental",
+            "status": "completed",
+            "scope": "Declared immutable inputs only; cache validity is not conclusion correctness.",
+            "executor": {
+              "kind": "dsh",
+              "version": "0.1.0-rc.6",
+              "adapter": "deepseek",
+              "isolation": "independent_cordis_root",
+              "protocol": "structured_review_v1",
+              "runnerHash": "f2a41327b7619a1c276fd4d986fbb2b804ac0ef083b7f5dc205b76eb7d0ffbc5",
+              "maxTokens": 4096,
+              "timeoutMs": 120000,
+              "model": {
+                "provider": "deepseek-official",
+                "id": "deepseek-flash",
+                "immutableRevision": null,
+                "assurance": "configured-visible-route",
+                "risks": [
+                  "model_revision_unverified",
+                  "provider_update_undetectable"
+                ]
+              },
+              "advertisedModel": {
+                "id": "deepseek-flash",
+                "name": "DeepSeek-V4.1-Flash",
+                "owned_by": "deepseek"
+              },
+              "connection": {
+                "adapter": "deepseek",
+                "thinking": "disabled",
+                "reasoningEffort": "off"
+              },
+              "runtimeHashes": {
+                "@deepseek-ai/dsh-llm": "7e02740f9b10cfb965453ca26eb23795c4e8dc818038dd2c0f80aaade0100ea1",
+                "@deepseek-ai/dsh-llm-deepseek": "093f80a934f1ecc0791599a9114caed85ab5e6fe1da5ab8d29639cad33b5d377"
+              }
+            },
+            "reusePolicy": {
+              "mode": "visible-model",
+              "maxAgeMs": 86400000
+            },
+            "identityObservation": {
+              "kind": "advertised_route",
+              "status": "observed",
+              "observedAt": "2026-11-11T15:24:58.029Z",
+              "requestCount": 1,
+              "risks": [
+                "model_revision_unverified",
+                "provider_update_undetectable"
+              ]
+            },
+            "tasks": [
+              {
+                "taskId": "auth",
+                "status": "reused",
+                "resultVersion": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                "reasons": [],
+                "output": {
+                  "summary": "The supplied `canManageAccount` implementation violates the stated local contract: it uses substring matching (`role.includes('admin')`) instead of exact equality, so role strings such as `'superadmin'`, `'admin-readonly'`, or `'not-an-admin'` would grant permission even though the contract states only a role exactly equal to `'admin'` should grant permission. It may also throw if the roles array contains a non-string element, but that domain is outside the declared contract (array of strings). The missing-user and non-array branches correctly return false.",
+                  "findings": [
+                    {
+                      "title": "Substring match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "The file's doc comment states \"Only the exact admin role grants permission\", but the body uses substring matching; the finding relies on the task-supplied contract, not on caller behavior.",
+                    "Caller-side filtering, role-assignment systems, and any wider authorization behavior across other files are outside this review and were not examined.",
+                    "Behavior for non-string entries in `user.roles` (e.g., where `.includes` might behave unexpectedly or throw) is outside the declared input domain ('array of strings') and is not assessed as a contract violation.",
+                    "No tests were run and no execution was performed; conclusions are limited to the supplied source text."
+                  ]
+                },
+                "modelCalls": 0,
+                "usage": null,
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "cache_provenance_match",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 4025.879399999998,
+                  "snapshotMs": 4015.906599999995,
+                  "executionMs": 0,
+                  "cacheMs": 9.54490000000078
+                },
+                "inputSnapshot": {
+                  "digest": "c0bbe28d1245b54e88f482a5433aadb97ec4c2cd4bda0a420b36319a4bcc48ba",
+                  "files": [
+                    {
+                      "path": "src/auth.js",
+                      "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+                      "bytes": 248
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:00.023Z",
+                  "createdAt": "2026-11-11T15:24:29.987Z",
+                  "expiresAt": "2026-11-12T15:24:29.987Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 30036
+                },
+                "reusedFrom": {
+                  "resultVersion": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                  "createdAt": "2026-11-11T15:24:29.987Z",
+                  "validation": [
+                    {
+                      "name": "output_schema",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "declared_source_or_upstream_evidence",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "reported_dependency_gaps",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1",
+                      "note": "This does not prove semantic completeness of declared inputs."
+                    },
+                    {
+                      "name": "conclusion_correctness",
+                      "status": "not_performed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "execution_completed",
+                      "status": "passed",
+                      "version": "1",
+                      "note": "Executor reported stop."
+                    },
+                    {
+                      "name": "request_has_no_tools",
+                      "status": "passed",
+                      "version": "frozen-text-no-tools-1"
+                    },
+                    {
+                      "name": "snapshot_stable_after_execution",
+                      "status": "passed",
+                      "version": "1"
+                    }
+                  ]
+                },
+                "error": null
+              },
+              {
+                "taskId": "pricing",
+                "status": "reused",
+                "resultVersion": "e66da7c3-06e1-4117-9c9b-0617eec66b7b",
+                "reasons": [],
+                "output": {
+                  "summary": "The supplied pricing function enforces the unitPrice half of the stated contract (rejects nonfinite or negative unitPrice) but does not enforce the quantity half: it rejects only noninteger quantity, so negative integers pass validation and produce a negative total. The accepted-input arithmetic matches the specified rule exactly.",
+                  "findings": [
+                    {
+                      "title": "Negative integer quantities are accepted, violating the validation contract",
+                      "evidence": "if (!Number.isInteger(quantity)) {",
+                      "severity": "high",
+                      "path": "src/pricing.js",
+                      "line": 6
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only the supplied src/pricing.js bytes were reviewed; no tests were run and correctness was not verified by execution.",
+                    "Wider financial policy, alternative currency standards, transaction limits, and caller reachability are outside scope per the task definition.",
+                    "Behavior of inputs such as NaN for quantity is not separately assessed beyond the visible Number.isInteger check, which returns false for NaN."
+                  ]
+                },
+                "modelCalls": 0,
+                "usage": null,
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "cache_provenance_match",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 4172.453399999991,
+                  "snapshotMs": 4152.429199999999,
+                  "executionMs": 0,
+                  "cacheMs": 19.092400000001362
+                },
+                "inputSnapshot": {
+                  "digest": "cb6197845d9a0166bad16c54cf3b585e81228d889da585135939b3ef08e43953",
+                  "files": [
+                    {
+                      "path": "src/pricing.js",
+                      "sha256": "e1a9f20c15e7367d21629aba90e4721419302b384820fa43ab32680005ae33cf",
+                      "bytes": 414
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:02.094Z",
+                  "createdAt": "2026-11-11T15:24:36.344Z",
+                  "expiresAt": "2026-11-12T15:24:36.344Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 25750
+                },
+                "reusedFrom": {
+                  "resultVersion": "e66da7c3-06e1-4117-9c9b-0617eec66b7b",
+                  "createdAt": "2026-11-11T15:24:36.344Z",
+                  "validation": [
+                    {
+                      "name": "output_schema",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "declared_source_or_upstream_evidence",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "reported_dependency_gaps",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1",
+                      "note": "This does not prove semantic completeness of declared inputs."
+                    },
+                    {
+                      "name": "conclusion_correctness",
+                      "status": "not_performed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "execution_completed",
+                      "status": "passed",
+                      "version": "1",
+                      "note": "Executor reported stop."
+                    },
+                    {
+                      "name": "request_has_no_tools",
+                      "status": "passed",
+                      "version": "frozen-text-no-tools-1"
+                    },
+                    {
+                      "name": "snapshot_stable_after_execution",
+                      "status": "passed",
+                      "version": "1"
+                    }
+                  ]
+                },
+                "error": null
+              },
+              {
+                "taskId": "pagination",
+                "status": "reused",
+                "resultVersion": "78b4cb92-235b-4a90-9a85-2edd155f950f",
+                "reasons": [],
+                "output": {
+                  "summary": "The supplied `paginate` implementation has a contract violation: the slice end index is passed as `pageSize` rather than `offset + pageSize`, so pages after the first return the wrong window of elements (only page 1 behaves correctly, and it happens to work because offset is 0). Validation of the array, page, and pageSize parameters matches the stated invalid-input rules, and `slice` preserves order and does not mutate the input.",
+                  "findings": [
+                    {
+                      "title": "Slice end bound uses pageSize instead of offset + pageSize, corrupting all pages after the first",
+                      "evidence": "  return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only src/pagination.js was supplied; no callers, tests, or runtime behavior were examined.",
+                    "No execution was performed, so the finding is based on reading the slice semantics of the supplied source, not on observed output.",
+                    "Behavior for arrays with holes or non-plain arrays (objects with length) is outside the plain-array contract and not assessed beyond the Array.isArray check.",
+                    "Very large `page * pageSize` values causing precision loss are not addressed by the stated contract."
+                  ]
+                },
+                "modelCalls": 0,
+                "usage": null,
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "cache_provenance_match",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 4604.8177,
+                  "snapshotMs": 4587.916500000007,
+                  "executionMs": 0,
+                  "cacheMs": 16.4062000000049
+                },
+                "inputSnapshot": {
+                  "digest": "4c181f32f568d61dae147e26cdd13a9b62be4e3c83cfcb93b5989b64451630bf",
+                  "files": [
+                    {
+                      "path": "src/pagination.js",
+                      "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+                      "bytes": 449
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:04.689Z",
+                  "createdAt": "2026-11-11T15:24:42.326Z",
+                  "expiresAt": "2026-11-12T15:24:42.326Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 22363
+                },
+                "reusedFrom": {
+                  "resultVersion": "78b4cb92-235b-4a90-9a85-2edd155f950f",
+                  "createdAt": "2026-11-11T15:24:42.326Z",
+                  "validation": [
+                    {
+                      "name": "output_schema",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "declared_source_or_upstream_evidence",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "reported_dependency_gaps",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1",
+                      "note": "This does not prove semantic completeness of declared inputs."
+                    },
+                    {
+                      "name": "conclusion_correctness",
+                      "status": "not_performed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "execution_completed",
+                      "status": "passed",
+                      "version": "1",
+                      "note": "Executor reported stop."
+                    },
+                    {
+                      "name": "request_has_no_tools",
+                      "status": "passed",
+                      "version": "frozen-text-no-tools-1"
+                    },
+                    {
+                      "name": "snapshot_stable_after_execution",
+                      "status": "passed",
+                      "version": "1"
+                    }
+                  ]
+                },
+                "error": null
+              },
+              {
+                "taskId": "summary",
+                "status": "reused",
+                "resultVersion": "743726f0-a814-41d3-b6bc-34dab056bdf3",
+                "reasons": [],
+                "output": {
+                  "summary": "Supplied upstream checks report three high-severity local contract violations in three files, each based only on the supplied source text with no execution performed. auth: `canManageAccount` uses substring matching (`role.includes('admin')`) instead of exact equality, so roles such as 'superadmin' or 'not-an-admin' would grant permission contrary to the stated exact-admin contract; missing-user and non-array branches return false, and non-string role entries are outside the declared array-of-strings domain. pagination: `paginate` passes `pageSize` as the slice end index instead of `offset + pageSize`, so pages after the first return the wrong window (page 1 works because offset is 0); array/page/pageSize validation matches the stated invalid-input rules and slice preserves order without mutating input. pricing: the function rejects nonfinite or negative unitPrice but validates quantity only with `Number.isInteger(quantity)`, so negative integers pass and yield a negative total; arithmetic on accepted inputs matches the specified rule. Validation notes are descriptive context, not additional findings. Duplicate findings: none (the three findings are distinct paths/lines). Unknown dependencies: none declared upstream.",
+                  "findings": [
+                    {
+                      "title": "Substring match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    },
+                    {
+                      "title": "Slice end bound uses pageSize instead of offset + pageSize, corrupting all pages after the first",
+                      "evidence": "  return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    },
+                    {
+                      "title": "Negative integer quantities are accepted, violating the validation contract",
+                      "evidence": "if (!Number.isInteger(quantity)) {",
+                      "severity": "high",
+                      "path": "src/pricing.js",
+                      "line": 6
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "auth: The file's doc comment states \"Only the exact admin role grants permission\", but the body uses substring matching; the finding relies on the task-supplied contract, not on caller behavior.",
+                    "auth: Caller-side filtering, role-assignment systems, and any wider authorization behavior across other files are outside this review and were not examined.",
+                    "auth: Behavior for non-string entries in `user.roles` (e.g., where `.includes` might behave unexpectedly or throw) is outside the declared input domain ('array of strings') and is not assessed as a contract violation.",
+                    "auth: No tests were run and no execution was performed; conclusions are limited to the supplied source text.",
+                    "pagination: Only src/pagination.js was supplied; no callers, tests, or runtime behavior were examined.",
+                    "pagination: No execution was performed, so the finding is based on reading the slice semantics of the supplied source, not on observed output.",
+                    "pagination: Behavior for arrays with holes or non-plain arrays (objects with length) is outside the plain-array contract and not assessed beyond the Array.isArray check.",
+                    "pagination: Very large `page * pageSize` values causing precision loss are not addressed by the stated contract.",
+                    "pricing: Only the supplied src/pricing.js bytes were reviewed; no tests were run and correctness was not verified by execution.",
+                    "pricing: Wider financial policy, alternative currency standards, transaction limits, and caller reachability are outside scope per the task definition.",
+                    "pricing: Behavior of inputs such as NaN for quantity is not separately assessed beyond the visible Number.isInteger check, which returns false for NaN."
+                  ]
+                },
+                "modelCalls": 0,
+                "usage": null,
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "cache_provenance_match",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 3991.6524000000063,
+                  "snapshotMs": 3977.5251999999964,
+                  "executionMs": 0,
+                  "cacheMs": 13.51299999999901
+                },
+                "inputSnapshot": {
+                  "digest": "d20f5c7a9b78dae89376ea385e68d4ea4d2ae281eda7b7d53dbd6064864d2ccd",
+                  "files": [],
+                  "directories": []
+                },
+                "upstreamVersions": {
+                  "auth": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                  "pricing": "e66da7c3-06e1-4117-9c9b-0617eec66b7b",
+                  "pagination": "78b4cb92-235b-4a90-9a85-2edd155f950f"
+                },
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:06.912Z",
+                  "createdAt": "2026-11-11T15:24:49.773Z",
+                  "expiresAt": "2026-11-12T15:24:49.773Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 17139
+                },
+                "reusedFrom": {
+                  "resultVersion": "743726f0-a814-41d3-b6bc-34dab056bdf3",
+                  "createdAt": "2026-11-11T15:24:49.773Z",
+                  "validation": [
+                    {
+                      "name": "output_schema",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "declared_source_or_upstream_evidence",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "reported_dependency_gaps",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1",
+                      "note": "This does not prove semantic completeness of declared inputs."
+                    },
+                    {
+                      "name": "conclusion_correctness",
+                      "status": "not_performed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "execution_completed",
+                      "status": "passed",
+                      "version": "1",
+                      "note": "Executor reported stop."
+                    },
+                    {
+                      "name": "request_has_no_tools",
+                      "status": "passed",
+                      "version": "frozen-text-no-tools-1"
+                    },
+                    {
+                      "name": "snapshot_stable_after_execution",
+                      "status": "passed",
+                      "version": "1"
+                    }
+                  ]
+                },
+                "error": null
+              }
+            ],
+            "totals": {
+              "executed": 0,
+              "reused": 4,
+              "failed": 0,
+              "blocked": 0,
+              "cancelled": 0,
+              "modelCalls": 0,
+              "knownModelCalls": 0,
+              "unknownCallCounts": 0,
+              "identityMs": 188.56549999999697,
+              "totalMs": 17342.6572,
+              "snapshotMs": 16733.777499999997,
+              "executionMs": 0,
+              "cacheMs": 58.556500000006054,
+              "usage": null
+            }
+          }
+        },
+        {
+          "stage": "pricing-changed",
+          "status": "passed",
+          "checks": {
+            "completed": true,
+            "allFourTasksPresent": true,
+            "expectedExecutions": true,
+            "expectedReuses": true,
+            "expectedModelCalls": true,
+            "realOfficialDshIdentity": true,
+            "explicitVisibleModelPolicy": true,
+            "advertisedRouteObserved": true,
+            "noUnknownCallCounts": true,
+            "noFailedBlockedOrCancelled": true,
+            "currentSourceValid": true,
+            "perTaskCallsConsistent": true,
+            "reportedTaskTotalsConsistent": true,
+            "allResultsReusable": true,
+            "unknownRevisionRisksRecorded": true,
+            "reusedResultsWithinTtl": true,
+            "usageRecordedForExecutions": true,
+            "noNewUsageOnReuse": true
+          },
+          "sourceSnapshot": "pricingFixed",
+          "source": {
+            "path": "artifacts/core-acceptance/run-02FG6R/pricing-changed.report.json",
+            "sha256": "f59a31e349b52a05eed114227c6ebccd5297a787c21c59f8be9b85ce1fee54fb"
+          },
+          "score": {
+            "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+            "summaryAvailable": true,
+            "summaryCurrentSourceValid": true,
+            "expectedCount": 2,
+            "observedUniqueCount": 2,
+            "matchedCount": 2,
+            "knownFindingCoverage": 1,
+            "matchedIds": [
+              "auth-substring-role",
+              "pagination-absolute-end"
+            ],
+            "missingIds": [],
+            "unmatchedFindings": []
+          },
+          "report": {
+            "schemaVersion": 1,
+            "runId": "b55debba-9714-4003-8ab8-03f509515494",
+            "startedAt": "2026-11-11T15:25:15.244Z",
+            "finishedAt": "2026-11-11T15:25:44.992Z",
+            "manifestDigest": "c2fce72dd3ad38370edbf19cafc49608be86eb4632571b6e0cbb38a2f3a2e4fd",
+            "mode": "incremental",
+            "status": "completed",
+            "scope": "Declared immutable inputs only; cache validity is not conclusion correctness.",
+            "executor": {
+              "kind": "dsh",
+              "version": "0.1.0-rc.6",
+              "adapter": "deepseek",
+              "isolation": "independent_cordis_root",
+              "protocol": "structured_review_v1",
+              "runnerHash": "f2a41327b7619a1c276fd4d986fbb2b804ac0ef083b7f5dc205b76eb7d0ffbc5",
+              "maxTokens": 4096,
+              "timeoutMs": 120000,
+              "model": {
+                "provider": "deepseek-official",
+                "id": "deepseek-flash",
+                "immutableRevision": null,
+                "assurance": "configured-visible-route",
+                "risks": [
+                  "model_revision_unverified",
+                  "provider_update_undetectable"
+                ]
+              },
+              "advertisedModel": {
+                "id": "deepseek-flash",
+                "name": "DeepSeek-V4.1-Flash",
+                "owned_by": "deepseek"
+              },
+              "connection": {
+                "adapter": "deepseek",
+                "thinking": "disabled",
+                "reasoningEffort": "off"
+              },
+              "runtimeHashes": {
+                "@deepseek-ai/dsh-llm": "7e02740f9b10cfb965453ca26eb23795c4e8dc818038dd2c0f80aaade0100ea1",
+                "@deepseek-ai/dsh-llm-deepseek": "093f80a934f1ecc0791599a9114caed85ab5e6fe1da5ab8d29639cad33b5d377"
+              }
+            },
+            "reusePolicy": {
+              "mode": "visible-model",
+              "maxAgeMs": 86400000
+            },
+            "identityObservation": {
+              "kind": "advertised_route",
+              "status": "observed",
+              "observedAt": "2026-11-11T15:25:15.473Z",
+              "requestCount": 1,
+              "risks": [
+                "model_revision_unverified",
+                "provider_update_undetectable"
+              ]
+            },
+            "tasks": [
+              {
+                "taskId": "auth",
+                "status": "reused",
+                "resultVersion": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                "reasons": [],
+                "output": {
+                  "summary": "The supplied `canManageAccount` implementation violates the stated local contract: it uses substring matching (`role.includes('admin')`) instead of exact equality, so role strings such as `'superadmin'`, `'admin-readonly'`, or `'not-an-admin'` would grant permission even though the contract states only a role exactly equal to `'admin'` should grant permission. It may also throw if the roles array contains a non-string element, but that domain is outside the declared contract (array of strings). The missing-user and non-array branches correctly return false.",
+                  "findings": [
+                    {
+                      "title": "Substring match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "The file's doc comment states \"Only the exact admin role grants permission\", but the body uses substring matching; the finding relies on the task-supplied contract, not on caller behavior.",
+                    "Caller-side filtering, role-assignment systems, and any wider authorization behavior across other files are outside this review and were not examined.",
+                    "Behavior for non-string entries in `user.roles` (e.g., where `.includes` might behave unexpectedly or throw) is outside the declared input domain ('array of strings') and is not assessed as a contract violation.",
+                    "No tests were run and no execution was performed; conclusions are limited to the supplied source text."
+                  ]
+                },
+                "modelCalls": 0,
+                "usage": null,
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "cache_provenance_match",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 4466.0495999999985,
+                  "snapshotMs": 4454.408900000002,
+                  "executionMs": 0,
+                  "cacheMs": 11.161299999999756
+                },
+                "inputSnapshot": {
+                  "digest": "c0bbe28d1245b54e88f482a5433aadb97ec4c2cd4bda0a420b36319a4bcc48ba",
+                  "files": [
+                    {
+                      "path": "src/auth.js",
+                      "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+                      "bytes": 248
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:17.346Z",
+                  "createdAt": "2026-11-11T15:24:29.987Z",
+                  "expiresAt": "2026-11-12T15:24:29.987Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 47359
+                },
+                "reusedFrom": {
+                  "resultVersion": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                  "createdAt": "2026-11-11T15:24:29.987Z",
+                  "validation": [
+                    {
+                      "name": "output_schema",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "declared_source_or_upstream_evidence",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "reported_dependency_gaps",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1",
+                      "note": "This does not prove semantic completeness of declared inputs."
+                    },
+                    {
+                      "name": "conclusion_correctness",
+                      "status": "not_performed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "execution_completed",
+                      "status": "passed",
+                      "version": "1",
+                      "note": "Executor reported stop."
+                    },
+                    {
+                      "name": "request_has_no_tools",
+                      "status": "passed",
+                      "version": "frozen-text-no-tools-1"
+                    },
+                    {
+                      "name": "snapshot_stable_after_execution",
+                      "status": "passed",
+                      "version": "1"
+                    }
+                  ]
+                },
+                "error": null
+              },
+              {
+                "taskId": "pricing",
+                "status": "executed",
+                "resultVersion": "b18cc189-8afd-4530-a607-b2f32239c456",
+                "reasons": [
+                  {
+                    "code": "file_content_or_membership_changed",
+                    "message": "file content or membership changed"
+                  },
+                  {
+                    "code": "request_changed",
+                    "message": "request changed"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied calculateLineTotal implementation enforces the stated boundary contract: nonfinite or negative unitPrice throws, noninteger or negative quantity throws, and accepted inputs return the specified Math.round(unitPrice * quantity * 100) / 100 expression. No contract violations were found in the supplied source.",
+                  "findings": [],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only src/pricing.js was supplied; callers and other modules were not reviewed.",
+                    "No tests were run; conclusions are based solely on reading the supplied source text.",
+                    "Financial policy, currency standards, transaction limits, and caller reachability are outside the requested scope and were not evaluated.",
+                    "The contract treats the arithmetic expression as authoritative; behavior for edge magnitudes such as very large products or floating-point rounding effects was not assessed against any additional specification."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 683,
+                  "outputTokens": 170,
+                  "cacheReadTokens": 256,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 9376.547000000006,
+                  "snapshotMs": 7069.27919999999,
+                  "executionMs": 2113.1267000000007,
+                  "cacheMs": 136.21570000000065
+                },
+                "inputSnapshot": {
+                  "digest": "bdb8d95f628bcf948256d479eb120c1876c11efbca6dd5475384434e0369a590",
+                  "files": [
+                    {
+                      "path": "src/pricing.js",
+                      "sha256": "2ab9c918b2067d9a508c6b444441f82fee0131aefdcfd74d67816ae3f122da6c",
+                      "bytes": 430
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:19.659Z",
+                  "createdAt": "2026-11-11T15:24:36.344Z",
+                  "expiresAt": "2026-11-12T15:24:36.344Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 43315
+                },
+                "reusedFrom": null,
+                "error": null
+              },
+              {
+                "taskId": "pagination",
+                "status": "reused",
+                "resultVersion": "78b4cb92-235b-4a90-9a85-2edd155f950f",
+                "reasons": [],
+                "output": {
+                  "summary": "The supplied `paginate` implementation has a contract violation: the slice end index is passed as `pageSize` rather than `offset + pageSize`, so pages after the first return the wrong window of elements (only page 1 behaves correctly, and it happens to work because offset is 0). Validation of the array, page, and pageSize parameters matches the stated invalid-input rules, and `slice` preserves order and does not mutate the input.",
+                  "findings": [
+                    {
+                      "title": "Slice end bound uses pageSize instead of offset + pageSize, corrupting all pages after the first",
+                      "evidence": "  return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only src/pagination.js was supplied; no callers, tests, or runtime behavior were examined.",
+                    "No execution was performed, so the finding is based on reading the slice semantics of the supplied source, not on observed output.",
+                    "Behavior for arrays with holes or non-plain arrays (objects with length) is outside the plain-array contract and not assessed beyond the Array.isArray check.",
+                    "Very large `page * pageSize` values causing precision loss are not addressed by the stated contract."
+                  ]
+                },
+                "modelCalls": 0,
+                "usage": null,
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "cache_provenance_match",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 4330.023699999998,
+                  "snapshotMs": 4313.050800000012,
+                  "executionMs": 0,
+                  "cacheMs": 16.349199999996927
+                },
+                "inputSnapshot": {
+                  "digest": "4c181f32f568d61dae147e26cdd13a9b62be4e3c83cfcb93b5989b64451630bf",
+                  "files": [
+                    {
+                      "path": "src/pagination.js",
+                      "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+                      "bytes": 449
+                    }
+                  ],
+                  "directories": []
+                },
+                "upstreamVersions": {},
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:26.531Z",
+                  "createdAt": "2026-11-11T15:24:42.326Z",
+                  "expiresAt": "2026-11-12T15:24:42.326Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 44205
+                },
+                "reusedFrom": {
+                  "resultVersion": "78b4cb92-235b-4a90-9a85-2edd155f950f",
+                  "createdAt": "2026-11-11T15:24:42.326Z",
+                  "validation": [
+                    {
+                      "name": "output_schema",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "declared_source_or_upstream_evidence",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "reported_dependency_gaps",
+                      "status": "passed",
+                      "version": "structured-source-evidence-1",
+                      "note": "This does not prove semantic completeness of declared inputs."
+                    },
+                    {
+                      "name": "conclusion_correctness",
+                      "status": "not_performed",
+                      "version": "structured-source-evidence-1"
+                    },
+                    {
+                      "name": "execution_completed",
+                      "status": "passed",
+                      "version": "1",
+                      "note": "Executor reported stop."
+                    },
+                    {
+                      "name": "request_has_no_tools",
+                      "status": "passed",
+                      "version": "frozen-text-no-tools-1"
+                    },
+                    {
+                      "name": "snapshot_stable_after_execution",
+                      "status": "passed",
+                      "version": "1"
+                    }
+                  ]
+                },
+                "error": null
+              },
+              {
+                "taskId": "summary",
+                "status": "executed",
+                "resultVersion": "b706d3e3-49d7-4189-ae0b-0ae4f7dfbfe8",
+                "reasons": [
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pricing did not reuse its previous result",
+                    "sourceTaskId": "pricing"
+                  },
+                  {
+                    "code": "upstream_result_changed",
+                    "message": "upstream result changed"
+                  },
+                  {
+                    "code": "request_changed",
+                    "message": "request changed"
+                  }
+                ],
+                "output": {
+                  "summary": "Summary of the three supplied upstream checks, scoped only to their stated local contracts. Auth: the supplied `canManageAccount` violates its stated contract by using substring matching (`role.includes('admin')`) instead of exact equality, so roles such as 'superadmin' or 'not-an-admin' would grant permission; the missing-user and non-array branches correctly return false. Pagination: the supplied `paginate` passes `pageSize` as the slice end instead of `offset + pageSize`, corrupting every page after the first (page 1 works only because offset is 0); parameter validation matches the stated invalid-input rules, and slice preserves order without mutating input. Pricing: the supplied `calculateLineTotal` enforces the stated boundary contract (throws on nonfinite/negative unitPrice and noninteger/negative quantity, returns the specified `Math.round(unitPrice * quantity * 100) / 100` expression) with no contract violations found. Duplicate findings: none duplicated across upstream results. All upstream unknown dependencies (none declared) and limitations are retained below.",
+                  "findings": [
+                    {
+                      "title": "Substring match grants permission to non-exact admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    },
+                    {
+                      "title": "Slice end bound uses pageSize instead of offset + pageSize, corrupting all pages after the first",
+                      "evidence": "  return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Auth: The file's doc comment states \"Only the exact admin role grants permission\", but the body uses substring matching; the finding relies on the task-supplied contract, not on caller behavior.",
+                    "Auth: Caller-side filtering, role-assignment systems, and any wider authorization behavior across other files are outside this review and were not examined.",
+                    "Auth: Behavior for non-string entries in `user.roles` (e.g., where `.includes` might behave unexpectedly or throw) is outside the declared input domain ('array of strings') and is not assessed as a contract violation.",
+                    "Auth: No tests were run and no execution was performed; conclusions are limited to the supplied source text.",
+                    "Pagination: Only src/pagination.js was supplied; no callers, tests, or runtime behavior were examined.",
+                    "Pagination: No execution was performed, so the finding is based on reading the slice semantics of the supplied source, not on observed output.",
+                    "Pagination: Behavior for arrays with holes or non-plain arrays (objects with length) is outside the plain-array contract and not assessed beyond the Array.isArray check.",
+                    "Pagination: Very large `page * pageSize` values causing precision loss are not addressed by the stated contract.",
+                    "Pricing: Only src/pricing.js was supplied; callers and other modules were not reviewed.",
+                    "Pricing: No tests were run; conclusions are based solely on reading the supplied source text.",
+                    "Pricing: Financial policy, currency standards, transaction limits, and caller reachability are outside the requested scope and were not evaluated.",
+                    "Pricing: The contract treats the arithmetic expression as authoritative; behavior for edge magnitudes such as very large products or floating-point rounding effects was not assessed against any additional specification.",
+                    "Scope: Only supplied file bytes and explicitly supplied upstream results were reviewed; no claim of repository-wide semantic completeness is made."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 431,
+                  "outputTokens": 722,
+                  "cacheReadTokens": 896,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "execution_completed",
+                    "status": "passed",
+                    "version": "1",
+                    "note": "Executor reported stop."
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  },
+                  {
+                    "name": "snapshot_stable_after_execution",
+                    "status": "passed",
+                    "version": "1"
+                  },
+                  {
+                    "name": "inputs_and_upstream_current_at_finish",
+                    "status": "passed",
+                    "version": "1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": true,
+                  "reasons": [],
+                  "risks": [
+                    "model_revision_unverified",
+                    "provider_update_undetectable"
+                  ],
+                  "assurance": "configured-visible-route"
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 11027.5671,
+                  "snapshotMs": 7372.516299999988,
+                  "executionMs": 3504.9697999999917,
+                  "cacheMs": 113.60700000001816
+                },
+                "inputSnapshot": {
+                  "digest": "d20f5c7a9b78dae89376ea385e68d4ea4d2ae281eda7b7d53dbd6064864d2ccd",
+                  "files": [],
+                  "directories": []
+                },
+                "upstreamVersions": {
+                  "auth": "947cc2b5-a0f4-45b4-a835-3fa8517c65f5",
+                  "pricing": "b18cc189-8afd-4530-a607-b2f32239c456",
+                  "pagination": "78b4cb92-235b-4a90-9a85-2edd155f950f"
+                },
+                "cacheCheck": {
+                  "status": "within_window",
+                  "checkedAt": "2026-11-11T15:25:29.038Z",
+                  "createdAt": "2026-11-11T15:24:49.773Z",
+                  "expiresAt": "2026-11-12T15:24:49.773Z",
+                  "maxAgeMs": 86400000,
+                  "ageMs": 39265
+                },
+                "reusedFrom": null,
+                "error": null
+              }
+            ],
+            "totals": {
+              "executed": 2,
+              "reused": 2,
+              "failed": 0,
+              "blocked": 0,
+              "cancelled": 0,
+              "modelCalls": 2,
+              "knownModelCalls": 2,
+              "unknownCallCounts": 0,
+              "identityMs": 228.4728999999934,
+              "totalMs": 29747.769099999998,
+              "snapshotMs": 23209.255199999992,
+              "executionMs": 5618.096499999992,
+              "cacheMs": 277.3332000000155,
+              "usage": {
+                "inputTokens": 1114,
+                "outputTokens": 892,
+                "cacheReadTokens": 1152,
+                "cacheWriteTokens": null,
+                "reasoningTokens": null,
+                "totalTokens": null
+              }
+            }
+          }
+        }
+      ],
+      "limitations": [
+        "Passing demonstrates real cache reuse and selective invalidation on this small example only.",
+        "It does not establish review correctness, immutable model identity, or performance on arbitrary repositories.",
+        "The provider may change an immutable model revision behind the same visible model ID within the TTL."
+      ]
+    }
+  ]
+}

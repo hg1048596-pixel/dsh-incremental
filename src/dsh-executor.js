@@ -6,6 +6,10 @@ import { createHash, randomUUID } from 'node:crypto';
 
 const MAX_TOKENS = 4096;
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
+const MAX_MODEL_METADATA_BYTES = 256 * 1024;
+const DEFAULT_REUSE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const MAX_REUSE_AGE_MS = 30 * DEFAULT_REUSE_MAX_AGE_MS;
+const VISIBLE_REUSE_RISKS = Object.freeze(['model_revision_unverified', 'provider_update_undetectable']);
 const RETRY_POLICY = Object.freeze({ mode: 'normal', maxRetries: 0 });
 const OUTPUT_ERROR = Symbol('incremental-output-error');
 const FINISH_CODES = Object.freeze({
@@ -25,6 +29,15 @@ function positiveInteger(value, fallback, upper, label) {
   const result = value ?? fallback;
   if (!Number.isSafeInteger(result) || result < 1 || result > upper) throw new Error(`Invalid ${label}`);
   return result;
+}
+
+function reusePolicySnapshot(input) {
+  if (input !== undefined && (!input || typeof input !== 'object' || Array.isArray(input)
+    || Object.keys(input).some((key) => !['mode', 'maxAgeMs'].includes(key)))) throw new Error('Invalid reusePolicy');
+  const mode = input?.mode ?? 'strict';
+  if (!['strict', 'visible-model'].includes(mode)) throw new Error('Invalid reusePolicy mode');
+  if (input?.maxAgeMs === null) throw new Error('Invalid reusePolicy maxAgeMs');
+  return freeze({ mode, maxAgeMs: positiveInteger(input?.maxAgeMs, DEFAULT_REUSE_MAX_AGE_MS, MAX_REUSE_AGE_MS, 'reusePolicy maxAgeMs') });
 }
 
 function configSnapshot(input) {
@@ -49,12 +62,14 @@ function configSnapshot(input) {
   const maxTokens = positiveInteger(input.maxTokens, MAX_TOKENS, MAX_TOKENS, 'maxTokens (maximum 4096)');
   const timeoutMs = positiveInteger(input.timeoutMs, 120000, 3600000, 'timeoutMs');
   const maxRequests = positiveInteger(input.maxRequests, 48, 48, 'maxRequests');
+  const reusePolicy = reusePolicySnapshot(input.reusePolicy);
+  if (reusePolicy.mode === 'visible-model' && adapter !== 'deepseek') throw new Error('Visible-model reuse requires the direct DeepSeek adapter');
   const connection = JSON.parse(JSON.stringify({ ...input.connection, adapter, baseURL: endpoint.href.replace(/\/$/, '') }));
   if (adapter === 'pi-ai' && typeof connection.api !== 'string') throw new Error('The pi-ai connection requires an explicit api protocol');
   return freeze({
     runtimeRoot: path.resolve(input.runtimeRoot), provider: input.provider, model: input.model,
     connection, credentialEnv: input.credentialEnv, approvedRepoRoot: path.resolve(input.approvedRepoRoot),
-    allowRemote: input.allowRemote === true, maxTokens, timeoutMs, maxRequests,
+    allowRemote: input.allowRemote === true, maxTokens, timeoutMs, maxRequests, reusePolicy,
   });
 }
 
@@ -84,6 +99,65 @@ function outputError(code, usage = null, modelCalls = 0) {
   error.usage = usage;
   error.modelCalls = modelCalls;
   return error;
+}
+
+function metadataText(value, secrets = []) {
+  if (typeof value !== 'string' || !value || value.length > 256 || /[\p{Cc}\p{Cf}\p{Cs}]/u.test(value)
+    || secrets.some((secret) => secret && value.includes(secret))) return undefined;
+  return value;
+}
+
+function selectedAdvertisedModel(metadata, model, secrets = []) {
+  if (!metadata || !Array.isArray(metadata.data)) throw outputError('MODEL_METADATA_INVALID');
+  const selected = metadata.data.filter((entry) => entry && typeof entry === 'object' && entry.id === model);
+  if (!selected.length) throw outputError('MODEL_NOT_ADVERTISED');
+  if (selected.length !== 1 || metadataText(selected[0].id, secrets) === undefined) throw outputError('MODEL_METADATA_INVALID');
+  const result = { id: selected[0].id };
+  for (const key of ['name', 'owned_by']) {
+    const value = metadataText(selected[0][key], secrets);
+    if (value !== undefined) result[key] = value;
+  }
+  return freeze(result);
+}
+
+async function readModelMetadata(response) {
+  if (!response.ok) {
+    await response.body?.cancel().catch(() => {});
+    throw outputError('MODEL_METADATA_HTTP_ERROR');
+  }
+  if (!response.body) throw outputError('MODEL_METADATA_INVALID');
+  if (Number(response.headers.get('content-length')) > MAX_MODEL_METADATA_BYTES) {
+    await response.body.cancel().catch(() => {});
+    throw outputError('MODEL_METADATA_TOO_LARGE');
+  }
+  const reader = response.body.getReader();
+  const parts = [];
+  let bytes = 0;
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_MODEL_METADATA_BYTES) throw outputError('MODEL_METADATA_TOO_LARGE');
+      parts.push(value);
+    }
+    try { return JSON.parse(Buffer.concat(parts).toString('utf8')); }
+    catch { throw outputError('MODEL_METADATA_INVALID'); }
+  } finally {
+    await reader.cancel().catch(() => {});
+    reader.releaseLock();
+  }
+}
+
+async function observeAdvertisedModel({ config, signal, resolveCredential, onRequest }) {
+  const credential = await resolveCredential(config.credentialEnv);
+  if (signal.aborted) throw outputError('ABORTED');
+  onRequest();
+  const response = await fetch(`${config.connection.baseURL}/models`, {
+    method: 'GET', redirect: 'error', signal,
+    headers: { authorization: `Bearer ${credential}`, accept: 'application/json' },
+  });
+  return selectedAdvertisedModel(await readModelMetadata(response), config.model, [credential]);
 }
 
 function exactKeys(value, keys) {
@@ -198,7 +272,11 @@ export async function createDshExecutor(input, dependencies = {}) {
   }
   const identity = freeze({
     kind: 'dsh', version: modules['@deepseek-ai/dsh-llm'].version,
-    model: { provider: config.provider, id: config.model, immutableRevision: null, assurance: 'config_only' },
+    model: {
+      provider: config.provider, id: config.model, immutableRevision: null,
+      assurance: config.reusePolicy.mode === 'visible-model' ? 'configured-visible-route' : 'config_only',
+      ...(config.reusePolicy.mode === 'visible-model' ? { risks: VISIBLE_REUSE_RISKS } : {}),
+    },
     adapter: config.connection.adapter, connection: config.connection, maxTokens: config.maxTokens, timeoutMs: config.timeoutMs,
     isolation: 'independent_cordis_root', protocol: 'structured_review_v1',
     runnerHash: createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),
@@ -210,9 +288,70 @@ export async function createDshExecutor(input, dependencies = {}) {
   let disposed = false;
   let disposal;
   const active = new Set();
-  return {
+  const reuseEligibility = freeze(config.reusePolicy.mode === 'visible-model'
+    ? { eligible: false, reasons: ['model_metadata_not_observed'], risks: VISIBLE_REUSE_RISKS }
+    : { eligible: false, reasons: ['model_revision_unknown'] });
+  const observedEligibility = freeze({ eligible: true, reasons: [], risks: VISIBLE_REUSE_RISKS });
+  const executor = {
     identity,
-    reuseEligibility: freeze({ eligible: false, reasons: ['model_revision_unknown'] }),
+    cachePolicy: config.reusePolicy,
+    reuseEligibility,
+    async prepareRun({ signal, repoRoot } = {}) {
+      if (disposed) throw outputError('EXECUTOR_DISPOSED');
+      if (signal?.aborted) throw outputError('ABORTED');
+      const view = (runIdentity, eligibility, observation) => freeze({
+        identity: runIdentity, cachePolicy: config.reusePolicy, reuseEligibility: eligibility,
+        identityObservation: observation, execute: Object.freeze(executor.execute.bind(executor)),
+      });
+      if (config.reusePolicy.mode === 'strict') return view(identity, reuseEligibility, {
+        kind: 'advertised_route', status: 'not_requested', reason: 'strict_policy', observedAt: null, requestCount: 0, risks: [],
+      });
+      if (!repoRoot || await realpath(repoRoot) !== await realpath(config.approvedRepoRoot)) throw outputError('REPOSITORY_NOT_APPROVED');
+      if (disposed) throw outputError('EXECUTOR_DISPOSED');
+      if (signal?.aborted) throw outputError('ABORTED');
+      if (!config.allowRemote) return view(identity, { eligible: false, reasons: ['remote_not_approved'], risks: VISIBLE_REUSE_RISKS }, {
+        kind: 'advertised_route', status: 'unavailable', reason: 'remote_not_approved', observedAt: null, requestCount: 0, risks: VISIBLE_REUSE_RISKS,
+      });
+      const controller = new AbortController();
+      const forwardAbort = () => controller.abort();
+      signal?.addEventListener('abort', forwardAbort, { once: true });
+      let timedOut = false;
+      const timer = setTimeout(() => { timedOut = true; controller.abort(); }, config.timeoutMs);
+      timer.unref?.();
+      let settle;
+      const tracker = { controller, done: new Promise((resolve) => { settle = resolve; }) };
+      active.add(tracker);
+      let requestCount = 0;
+      try {
+        let advertisedModel;
+        if (dependencies.observeModel) {
+          requestCount = 1;
+          advertisedModel = selectedAdvertisedModel(await dependencies.observeModel({ config, signal: controller.signal, resolveCredential }), config.model);
+        } else advertisedModel = await observeAdvertisedModel({
+          config, signal: controller.signal, resolveCredential, onRequest: () => { requestCount++; },
+        });
+        if (controller.signal.aborted) throw outputError('ABORTED');
+        if (disposed) throw outputError('EXECUTOR_DISPOSED');
+        return view(freeze({ ...identity, advertisedModel }), observedEligibility, {
+          kind: 'advertised_route', status: 'observed', observedAt: new Date().toISOString(), requestCount, risks: VISIBLE_REUSE_RISKS,
+        });
+      } catch (error) {
+        if (disposed) throw outputError('EXECUTOR_DISPOSED');
+        if (signal?.aborted) throw outputError('ABORTED');
+        const allowed = ['MODEL_NOT_ADVERTISED', 'MODEL_METADATA_INVALID', 'MODEL_METADATA_HTTP_ERROR', 'MODEL_METADATA_TOO_LARGE'];
+        const reason = timedOut ? 'model_metadata_timeout'
+          : error?.[OUTPUT_ERROR] && allowed.includes(error.code) ? error.code.toLowerCase() : 'model_metadata_unavailable';
+        return view(identity, { eligible: false, reasons: [reason], risks: VISIBLE_REUSE_RISKS }, {
+          kind: 'advertised_route', status: 'unavailable', reason, observedAt: new Date().toISOString(), requestCount, risks: VISIBLE_REUSE_RISKS,
+        });
+      } finally {
+        controller.abort();
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', forwardAbort);
+        active.delete(tracker);
+        settle();
+      }
+    },
     async execute({ request, repoRoot, signal }) {
       if (disposed) throw outputError('EXECUTOR_DISPOSED');
       if (!config.allowRemote) throw outputError('REMOTE_NOT_APPROVED');
@@ -307,4 +446,5 @@ export async function createDshExecutor(input, dependencies = {}) {
       return disposal;
     },
   };
+  return executor;
 }

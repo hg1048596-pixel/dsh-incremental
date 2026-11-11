@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { createDshExecutor, loadDshModules, validateReviewOutput } from '../src/dsh-executor.js';
+import { createDshExecutor, loadDshModules, validateDshConfiguration, validateReviewOutput } from '../src/dsh-executor.js';
 import { inspectDshRuntime } from '../src/doctor.js';
 import { apply as applyPlugin, resolveHostSecurityPolicy } from '../src/plugin.js';
 import { runReview } from '../src/engine.js';
@@ -35,8 +35,9 @@ function chunks(value = output, reason = { kind: 'stop' }, usage) {
     { type: 'finish', reason },
   ];
 }
-async function fakeExecutor(sequence = chunks(), overrides = {}, observe = () => {}) {
+async function fakeExecutor(sequence = chunks(), overrides = {}, observe = () => {}, dependencies = {}) {
   return createDshExecutor(config(overrides), {
+    ...dependencies,
     createAdapter: ({ modules, resolveCredential, config: frozen }) => new class extends modules['@deepseek-ai/dsh-llm'].exports.LlmAdapter {
       async *stream(options) {
         observe(options, resolveCredential, frozen);
@@ -51,6 +52,23 @@ test('strict review schema rejects wrong fields and invalid finding locations', 
   assert.equal(validateReviewOutput(output), output);
   assert.throws(() => validateReviewOutput({ ...output, command: 'ignored' }), { code: 'INVALID_OUTPUT' });
   assert.throws(() => validateReviewOutput({ ...output, findings: [{ title: 'x', path: 'a.js', line: 0, evidence: 'x', severity: 'high' }] }), { code: 'INVALID_OUTPUT' });
+});
+
+test('reuse policies default to strict and require a bounded positive TTL', () => {
+  assert.deepEqual(validateDshConfiguration(config()).reusePolicy, { mode: 'strict', maxAgeMs: 86400000 });
+  assert.deepEqual(validateDshConfiguration(config({ reusePolicy: { mode: 'visible-model' } })).reusePolicy,
+    { mode: 'visible-model', maxAgeMs: 86400000 });
+  assert.equal(validateDshConfiguration(config({ reusePolicy: { mode: 'visible-model', maxAgeMs: 2592000000 } })).reusePolicy.maxAgeMs, 2592000000);
+  for (const maxAgeMs of [null, 0, -1, 0.5, Infinity, 2592000001, '1000']) {
+    assert.throws(() => validateDshConfiguration(config({ reusePolicy: { mode: 'visible-model', maxAgeMs } })), /reusePolicy maxAgeMs/);
+  }
+  for (const reusePolicy of [null, [], 'visible-model', { mode: 'verified' }, { mode: 'visible-model', immutableRevision: 'fake' }]) {
+    assert.throws(() => validateDshConfiguration(config({ reusePolicy })), /reusePolicy/);
+  }
+  assert.throws(() => validateDshConfiguration(config({
+    connection: { adapter: 'pi-ai', baseURL: 'https://example.invalid', api: 'openai-completions' },
+    reusePolicy: { mode: 'visible-model' },
+  })), /direct DeepSeek adapter/);
 });
 
 test('unconfigured plugin stays dormant and partial host configuration fails', async () => {
@@ -119,6 +137,159 @@ runtimeTest('real adapter initialization does not resolve credentials; configure
     assert.deepEqual(JSON.parse(JSON.stringify(executor.identity)), executor.identity);
     assert.match(executor.identity.runnerHash, /^[a-f0-9]{64}$/);
   } finally { await executor.dispose(); }
+});
+
+runtimeTest('strict run preparation performs no model metadata request or credential resolution', async () => {
+  let observed = 0;
+  const executor = await fakeExecutor(chunks(), {}, () => {}, {
+    resolveCredential: async () => { assert.fail('strict preparation must not resolve a key'); },
+    observeModel: async () => { observed++; assert.fail('strict preparation must not request model metadata'); },
+  });
+  try {
+    const first = await executor.prepareRun({ repoRoot });
+    const second = await executor.prepareRun({ repoRoot });
+    assert.equal(observed, 0);
+    assert.equal(first.reuseEligibility.eligible, false);
+    assert.equal(first.identity.model.immutableRevision, null);
+    assert.deepEqual(first.identity, second.identity);
+    assert.equal(first.identityObservation.status, 'not_requested');
+    assert.equal(first.identityObservation.requestCount, 0);
+    assert.equal(Object.isFrozen(first), true);
+  } finally { await executor.dispose(); }
+});
+
+runtimeTest('visible-model preparation refreshes selected metadata in independent immutable run views', async () => {
+  let metadata = { data: [{ id: 'fixture-model', name: 'Visible Model', owned_by: 'fixture-provider', revision: 'not-a-trusted-revision' }] };
+  let observations = 0;
+  let sent = 0;
+  const executor = await fakeExecutor(chunks(), { reusePolicy: { mode: 'visible-model', maxAgeMs: 1000 }, immutableRevision: 'host-cannot-attest' },
+    () => { sent++; }, { observeModel: async ({ config: fixed }) => { observations++; assert.equal(Object.isFrozen(fixed), true); return structuredClone(metadata); } });
+  try {
+    assert.deepEqual(executor.cachePolicy, { mode: 'visible-model', maxAgeMs: 1000 });
+    assert.equal(executor.reuseEligibility.eligible, false);
+    assert.deepEqual(executor.reuseEligibility.reasons, ['model_metadata_not_observed']);
+    const first = await executor.prepareRun({ repoRoot });
+    assert.equal(first.reuseEligibility.eligible, true);
+    assert.equal(executor.reuseEligibility.eligible, false, 'preparing a run must not mutate the base eligibility');
+    metadata.data.push({ id: 'unrelated-model', name: 'New unrelated model' });
+    const second = await executor.prepareRun({ repoRoot });
+    assert.equal(observations, 2);
+    assert.notEqual(first, second);
+    assert.notEqual(first.identityObservation, second.identityObservation);
+    assert.deepEqual(first.identity, second.identity, 'unrelated catalog entries and observation times must not invalidate selected identity');
+    assert.deepEqual(first.identity.advertisedModel, { id: 'fixture-model', name: 'Visible Model', owned_by: 'fixture-provider' });
+    assert.equal(first.identity.model.immutableRevision, null);
+    assert.equal(first.identity.model.assurance, 'configured-visible-route');
+    assert.deepEqual(first.identityObservation.risks, ['model_revision_unverified', 'provider_update_undetectable']);
+    assert.equal(first.identityObservation.kind, 'advertised_route');
+    assert.equal(first.identityObservation.requestCount, 1);
+    assert.equal(Object.hasOwn(first.identity, 'observedAt'), false);
+    assert.equal(Object.hasOwn(executor.identity, 'advertisedModel'), false);
+    assert.equal(JSON.stringify(first.identity).includes('not-a-trusted-revision'), false);
+    assert.equal(Object.isFrozen(first.identity.advertisedModel), true);
+    assert.throws(() => { first.identity.advertisedModel.name = 'mutation'; }, TypeError);
+    metadata.data[0].name = 'Changed Visible Model';
+    const third = await executor.prepareRun({ repoRoot });
+    assert.equal(observations, 3);
+    assert.notDeepEqual(first.identity, third.identity);
+    assert.equal(first.identity.advertisedModel.name, 'Visible Model');
+    assert.equal(third.identity.advertisedModel.name, 'Changed Visible Model');
+    assert.deepEqual((await first.execute({ request, repoRoot })).output, output);
+    assert.equal(sent, 1);
+  } finally { await executor.dispose(); }
+});
+
+runtimeTest('missing, malformed and failed advertised-model observations disable reuse without leaking provider detail', async () => {
+  const cases = [
+    { metadata: { data: [{ id: 'other-model' }] }, reason: 'model_not_advertised' },
+    { metadata: { data: [{ id: 'fixture-model' }, { id: 'fixture-model' }] }, reason: 'model_metadata_invalid' },
+    { metadata: { unrelated: 'raw-provider-detail' }, reason: 'model_metadata_invalid' },
+    { error: new Error('raw-provider-detail'), reason: 'model_metadata_unavailable' },
+  ];
+  for (const item of cases) {
+    const executor = await fakeExecutor(chunks(), { reusePolicy: { mode: 'visible-model' } }, () => {}, {
+      observeModel: async () => { if (item.error) throw item.error; return item.metadata; },
+    });
+    try {
+      const view = await executor.prepareRun({ repoRoot });
+      assert.equal(view.reuseEligibility.eligible, false);
+      assert.deepEqual(view.reuseEligibility.reasons, [item.reason]);
+      assert.equal(view.identityObservation.reason, item.reason);
+      assert.equal(Object.hasOwn(view.identity, 'advertisedModel'), false);
+      assert.equal(JSON.stringify(view).includes('raw-provider-detail'), false);
+      assert.deepEqual((await view.execute({ request, repoRoot })).output, output);
+    } finally { await executor.dispose(); }
+  }
+});
+
+runtimeTest('overlapping preparations keep their own advertised-model snapshots', async () => {
+  const waiting = [];
+  let firstStarted;
+  const firstReady = new Promise((resolve) => { firstStarted = resolve; });
+  let bothStarted;
+  const ready = new Promise((resolve) => { bothStarted = resolve; });
+  const executor = await fakeExecutor(chunks(), { reusePolicy: { mode: 'visible-model' } }, () => {}, {
+    observeModel: async () => new Promise((resolve) => {
+      waiting.push(resolve);
+      if (waiting.length === 1) firstStarted();
+      if (waiting.length === 2) bothStarted();
+    }),
+  });
+  try {
+    const firstPending = executor.prepareRun({ repoRoot });
+    await firstReady;
+    const secondPending = executor.prepareRun({ repoRoot });
+    await ready;
+    waiting[1]({ data: [{ id: 'fixture-model', name: 'Second observation' }] });
+    const second = await secondPending;
+    waiting[0]({ data: [{ id: 'fixture-model', name: 'First observation' }] });
+    const first = await firstPending;
+    assert.equal(first.identity.advertisedModel.name, 'First observation');
+    assert.equal(second.identity.advertisedModel.name, 'Second observation');
+    assert.equal(Object.hasOwn(executor.identity, 'advertisedModel'), false);
+  } finally { await executor.dispose(); }
+});
+
+runtimeTest('advertised model fields discard controls and unrelated metadata', async () => {
+  const executor = await fakeExecutor(chunks(), { reusePolicy: { mode: 'visible-model' } }, () => {}, {
+    observeModel: async () => ({ data: [{ id: 'fixture-model', name: 'bad\u001b[31mname', owned_by: 'x'.repeat(257), secret: 'not-copied' }] }),
+  });
+  try {
+    const view = await executor.prepareRun({ repoRoot });
+    assert.deepEqual(view.identity.advertisedModel, { id: 'fixture-model' });
+    assert.equal(JSON.stringify(view).includes('not-copied'), false);
+  } finally { await executor.dispose(); }
+});
+
+runtimeTest('metadata preparation respects remote authorization, caller cancellation and disposal', async () => {
+  let observations = 0;
+  const disabled = await fakeExecutor(chunks(), { allowRemote: false, reusePolicy: { mode: 'visible-model' } }, () => {}, {
+    observeModel: async () => { observations++; return { data: [{ id: 'fixture-model' }] }; },
+  });
+  try {
+    const view = await disabled.prepareRun({ repoRoot });
+    assert.equal(view.reuseEligibility.eligible, false);
+    assert.equal(view.identityObservation.reason, 'remote_not_approved');
+    await assert.rejects(disabled.prepareRun({ repoRoot: path.dirname(repoRoot) }), { code: 'REPOSITORY_NOT_APPROVED' });
+    const aborted = new AbortController(); aborted.abort();
+    await assert.rejects(disabled.prepareRun({ repoRoot, signal: aborted.signal }), { code: 'ABORTED' });
+    assert.equal(observations, 0);
+  } finally { await disabled.dispose(); }
+  let started;
+  const pending = new Promise((resolve) => { started = resolve; });
+  const executor = await fakeExecutor(chunks(), { reusePolicy: { mode: 'visible-model' } }, () => {}, {
+    observeModel: async ({ signal }) => {
+      started();
+      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }));
+      throw new Error('private observer cancellation detail');
+    },
+  });
+  const preparing = executor.prepareRun({ repoRoot });
+  const rejected = assert.rejects(preparing, { code: 'EXECUTOR_DISPOSED' });
+  await pending;
+  await executor.dispose();
+  await rejected;
+  await assert.rejects(executor.prepareRun({ repoRoot }), { code: 'EXECUTOR_DISPOSED' });
 });
 
 runtimeTest('official pi-ai adapter initializes one explicit profile without ambient auth or discovery', async () => {
@@ -344,6 +515,66 @@ runtimeTest('actual old tool registry validates canonical outputs and renders JS
     assert.deepEqual(result.value, { summary: 'canonical' });
     assert.deepEqual(result.content, [{ type: 'text', text: '{"summary":"canonical"}' }]);
   } finally { await root.fiber.dispose(); }
+});
+
+runtimeTest('advertised-route wire uses one fixed authenticated bounded GET with redirects forbidden', async () => {
+  // Transport replacement is contained in a child process; no network request occurs.
+  const script = `
+    import { createDshExecutor } from ${JSON.stringify(new URL('../src/dsh-executor.js', import.meta.url).href)};
+    let calls = 0, references = [], requests = [];
+    const key = 'offline-metadata-fixture-key';
+    globalThis.fetch = async (url, options) => {
+      calls++;
+      requests.push({ url: String(url), method: options.method, redirect: options.redirect,
+        approvedCredential: new Headers(options.headers).get('authorization') === 'Bearer ' + key,
+        bodyAbsent: options.body === undefined });
+      if (calls === 1) return Response.json({ data: [{ id: 'fixture-model', name: 'Visible Fixture', owned_by: 'fixture-provider', revision: 'ignored-revision' },
+        { id: 'unrelated', privateDetail: 'ignored-detail' }] });
+      if (calls === 2) return Response.json({ data: [{ id: 'fixture-model', name: key, owned_by: 'bad\\u001bowner' }] });
+      if (calls === 3) return Response.json({ data: [] });
+      if (calls === 4) return new Response('x'.repeat(256 * 1024 + 1));
+      return new Promise((resolve, reject) => {
+        const keepAlive = setTimeout(() => reject(new Error(key)), 500);
+        options.signal.addEventListener('abort', () => { clearTimeout(keepAlive); reject(new Error(key)); }, { once: true });
+      });
+    };
+    const executor = await createDshExecutor({
+      runtimeRoot: ${JSON.stringify(runtimeRoot)}, provider: 'deepseek-official', model: 'fixture-model',
+      connection: { adapter: 'deepseek', baseURL: 'https://example.invalid/fixed' },
+      credentialEnv: 'OFFLINE_METADATA_ONLY', allowRemote: true, approvedRepoRoot: process.cwd(), timeoutMs: 30,
+      reusePolicy: { mode: 'visible-model' },
+    }, { resolveCredential: async (reference) => { references.push(reference); return key; } });
+    try {
+      const initialResolutions = references.length;
+      const views = [];
+      for (let i = 0; i < 5; i++) views.push(await executor.prepareRun({ repoRoot: process.cwd() }));
+      process.stdout.write(JSON.stringify({ calls, requests, references, initialResolutions,
+        firstIdentity: views[0].identity, secondModel: views[1].identity.advertisedModel,
+        observations: views.map((view) => view.identityObservation), eligible: views.map((view) => view.reuseEligibility.eligible),
+        containsCredential: JSON.stringify(views).includes(key),
+      }));
+    } finally { await executor.dispose(); }
+  `;
+  const { stdout, stderr } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', script], {
+    cwd: repoRoot, timeout: 30000, windowsHide: true,
+  });
+  assert.equal(stderr, '');
+  const observed = JSON.parse(stdout);
+  assert.equal(observed.initialResolutions, 0);
+  assert.equal(observed.calls, 5);
+  assert.deepEqual(observed.references, Array(5).fill('OFFLINE_METADATA_ONLY'));
+  for (const sent of observed.requests) assert.deepEqual(sent, {
+    url: 'https://example.invalid/fixed/models', method: 'GET', redirect: 'error', approvedCredential: true, bodyAbsent: true,
+  });
+  assert.deepEqual(observed.firstIdentity.advertisedModel, { id: 'fixture-model', name: 'Visible Fixture', owned_by: 'fixture-provider' });
+  assert.equal(observed.firstIdentity.model.immutableRevision, null);
+  assert.equal(JSON.stringify(observed.firstIdentity).includes('ignored'), false);
+  assert.deepEqual(observed.secondModel, { id: 'fixture-model' });
+  assert.deepEqual(observed.eligible, [true, true, false, false, false]);
+  assert.deepEqual(observed.observations.slice(2).map(({ reason }) => reason),
+    ['model_not_advertised', 'model_metadata_too_large', 'model_metadata_timeout']);
+  assert.ok(observed.observations.every(({ requestCount }) => requestCount === 1));
+  assert.equal(observed.containsCredential, false);
 });
 
 runtimeTest('official DeepSeek wire excludes message metadata and cancels HTTP body after rejected tool calls', async () => {

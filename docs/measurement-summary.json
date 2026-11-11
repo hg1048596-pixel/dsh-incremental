@@ -2,11 +2,15 @@
   "schemaVersion": 1,
   "date": "2026-11-11",
   "timezone": "Asia/Shanghai",
+  "deliveryStatus": "historical_strict_policy_record",
+  "scope": "Historical strict-policy experiments only",
+  "currentCoreStatus": "See docs/core-functionality.md",
   "tests": {
     "total": 91,
     "passed": 91,
     "failed": 0,
-    "skipped": 0
+    "skipped": 0,
+    "scope": "Historical full-suite verification; not product acceptance"
   },
   "fixture": {
     "repetitions": 3,

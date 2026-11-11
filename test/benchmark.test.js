@@ -126,6 +126,32 @@ test('central dispatch budget survives factory recreation and blocks calls befor
   assert.equal(report.trials[0].comparison.exactSummaryEvidenceEqual, null);
 });
 
+test('prepared run views retain cache policy and cannot bypass the central dispatch budget',async t=>{
+  let calls=0,preparations=0;
+  const executorFactory=()=>{
+    const fixture=createFixtureExecutor();
+    const identity={kind:'mock-real',model:'offline-prepared-route'};
+    return {
+      identity,cachePolicy:{mode:'visible-model',maxAgeMs:86400000},
+      reuseEligibility:{eligible:false,reasons:['not_prepared']},
+      async execute(input){calls++;return {...await fixture.execute(input),modelCalls:1,usage:null};},
+      async prepareRun(){
+        preparations++;
+        return {identity:{...identity,advertisedModel:{id:'route-model',name:'Observed model'}},cachePolicy:this.cachePolicy,reuseEligibility:{eligible:true,reasons:[],risks:['model_revision_unverified']},execute:this.execute.bind(this)};
+      },
+    };
+  };
+  const {report,artifactDir}=await runBenchmark({outputDir:await temporaryOutput(t),executorFactory,repetitions:1,maxModelCalls:5,permissionProvider:permissions});
+  assert.equal(preparations,4);assert.equal(calls,5);assert.equal(report.budget.dispatched,5);
+  const unchanged=report.trials[0].stages.find(stage=>stage.stage==='unchanged-incremental');
+  assert.equal(unchanged.totals.reused,4);assert.equal(unchanged.totals.modelCalls,0);
+  assert.equal(unchanged.executorIdentity.advertisedModel.name,'Observed model');
+  assert.equal(unchanged.reuseEligibility.eligible,true);
+  const raw=JSON.parse(await fs.readFile(path.join(artifactDir,unchanged.rawReportPath),'utf8'));
+  assert.equal(raw.reusePolicy.mode,'visible-model');
+  assert(raw.tasks.every(task=>task.cacheCheck.status==='within_window'));
+});
+
 test('supplementary pair preserves separate empty states and records its changed protocol', async (t) => {
   const counter = { calls: 0 };
   const { report, artifactDir } = await runPairedBenchmark({
@@ -198,7 +224,16 @@ test('preparation keeps the reference outside review inputs and refuses overwrit
   assert.equal(path.dirname(example.groundTruthPath), path.dirname(example.repoRoot));
   await assert.rejects(fs.stat(path.join(example.repoRoot, 'ground-truth.json')), { code: 'ENOENT' });
   const promptText = JSON.stringify(example.manifest);
-  assert.doesNotMatch(promptText, /negative|substring|slice|ground.truth|answer.key/i);
+  assert.doesNotMatch(promptText, /ground[._ -]?truth|answer[._ -]?key|preset[ _-]?defects?|expected[ _-]?findings/i);
+  const reference=JSON.parse(await fs.readFile(example.groundTruthPath,'utf8'));
+  const taskText=example.manifest.tasks.flatMap(task=>[task.description,...task.acceptance]).join('\n');
+  // Local business contracts are legitimate inputs; reference answer IDs,
+  // finding titles and defective source-line answers must remain separate.
+  for(const finding of reference.snapshots.initial.findings) {
+    assert(!taskText.includes(finding.id));assert(!taskText.includes(finding.title));assert(!taskText.includes(finding.evidence));
+  }
+  assert.deepEqual(example.manifest.tasks.flatMap(task=>task.inputs.files).sort(),Object.keys(reference.snapshots.initial.files).sort());
+  assert(example.manifest.tasks.every(task=>task.inputs.directories.length===0));
   await assert.rejects(prepareExample({ outputDir: path.join(directory, 'case') }), /Refusing to overwrite/);
 });
 

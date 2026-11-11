@@ -3,28 +3,28 @@
   "tasks": [
     {
       "id": "auth",
-      "description": "Review the account authorization module for concrete correctness and security defects. Cite source evidence for each finding.",
+      "description": "Review the supplied authorization function against this complete local contract: a missing user or non-array roles returns false; when roles is an array of strings, only a role exactly equal to admin grants permission. Caller-side filtering and role-assignment systems are outside this task. Identify violations established by the supplied function and this contract; cite exact source evidence. Report any missing fact actually required for these scoped conclusions.",
       "inputs": { "files": ["src/auth.js"], "directories": [] },
       "dependsOn": [],
-      "acceptance": ["Review the declared source file and return findings with exact source evidence."]
+      "acceptance": ["Check the stated function-boundary contract for the declared input domain; do not assume that callers filter role strings.", "Keep unreviewed wider authorization behavior as a limitation, and report a dependency gap if it is needed for a scoped finding."]
     },
     {
       "id": "pricing",
-      "description": "Review the checkout pricing module for concrete correctness defects. Cite source evidence for each finding.",
+      "description": "Review the supplied pricing function against this complete local contract: every direct call must reject a nonfinite or negative unitPrice, and reject a noninteger or negative quantity, regardless of callers. For accepted inputs, JavaScript Math.round(unitPrice * quantity * 100) / 100 is the specified arithmetic rule. Alternative currency standards, transaction limits, and caller reachability are outside this review. Identify violations of this contract from the supplied source, with exact evidence. Report any missing fact actually needed for these scoped conclusions.",
       "inputs": { "files": ["src/pricing.js"], "directories": [] },
       "dependsOn": [],
-      "acceptance": ["Review the declared source file and return findings with exact source evidence."]
+      "acceptance": ["Check enforcement of the complete supplied validation contract at the function boundary without relying on callers.", "Treat the stated arithmetic rule as the local specification; do not infer an unspecified financial policy or claim wider financial correctness."]
     },
     {
       "id": "pagination",
-      "description": "Review the collection pagination module for concrete correctness defects. Cite source evidence for each finding.",
+      "description": "Review the supplied pagination function against this complete local contract: for a plain array and positive integer page and pageSize, page is one-based and the result contains at most pageSize elements starting at (page - 1) * pageSize, preserving order and leaving the input unchanged. A start past the array end returns an empty array. A non-array input or non-positive/noninteger page parameter is rejected. External callers, UI behavior and persistence are outside this task. Identify source-grounded violations of this contract and any fact actually required but missing.",
       "inputs": { "files": ["src/pagination.js"], "directories": [] },
       "dependsOn": [],
-      "acceptance": ["Review the declared source file and return findings with exact source evidence."]
+      "acceptance": ["Check the stated one-based page contract across valid plain-array inputs and the declared invalid parameter cases.", "Cite exact supplied source evidence; scope conclusions to the function and the provided contract."]
     },
     {
       "id": "summary",
-      "description": "Combine the upstream module review results into a concise report. Preserve source evidence, remove duplicate findings, and state review limitations.",
+      "description": "Summarize only the supplied upstream checks of their explicitly scoped local contracts. Preserve source evidence, remove duplicate findings, and retain every upstream unknown dependency and limitation. No additional repository-wide conclusion or new source claim is requested; missing wider context is not itself needed merely to summarize these supplied results.",
       "inputs": { "files": [], "directories": [] },
       "dependsOn": ["auth", "pricing", "pagination"],
       "acceptance": ["Summarize the supplied upstream results and preserve their source evidence."]

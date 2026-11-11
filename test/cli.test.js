@@ -19,15 +19,17 @@ async function workspace(t) {
   const repo=path.join(base,'repo'),state=path.join(base,'state');await fs.mkdir(repo);
   return {base,repo,state};
 }
-test('CLI help states synthetic default without loading a model',async()=>{
-  const result=await command(['--help']);assert.equal(result.code,0);assert.match(result.stdout,/NOT an AI reviewer/);
+test('CLI help requires model configuration and makes synthetic diagnostics explicit',async()=>{
+  const result=await command(['--help']);assert.equal(result.code,0);
+  assert.match(result.stdout,/Review commands require --dsh-config/);
+  assert.match(result.stdout,/--fixture explicitly selects a deterministic synthetic diagnostic, NOT an AI reviewer/);
 });
 test('CLI plan creates neither state nor model requests, and missing report is explicit',async t=>{
   const {base,repo,state}=await workspace(t);await fs.writeFile(path.join(repo,'file.js'),'const value = 1;');
   const manifest=path.join(base,'tasks.json');await fs.writeFile(manifest,JSON.stringify({schemaVersion:1,tasks:[{
     id:'module',description:'Review supplied text',inputs:{files:['file.js'],directories:[]},dependsOn:[],acceptance:['Return structured findings'],
   }]}));
-  const result=await command(['plan','--repo',repo,'--state',state,'--manifest',manifest,'--json']);
+  const result=await command(['plan','--fixture','--repo',repo,'--state',state,'--manifest',manifest,'--json']);
   assert.equal(result.code,0,result.stderr);assert.equal(JSON.parse(result.stdout).kind,'plan');
   await assert.rejects(fs.stat(state),{code:'ENOENT'});
   const missing=await command(['report','--repo',repo,'--state',state]);assert.notEqual(missing.code,0);assert.match(missing.stderr,/REPORT_NOT_FOUND/);
@@ -56,16 +58,46 @@ test('CLI report replaces an outside hard link without modifying reviewed source
 
 test('CLI rejects source output before loading a manifest or creating review state',async t=>{
   const {base,repo,state}=await workspace(t),output=path.join(repo,'report.md');
-  const result=await command(['run','--repo',repo,'--state',state,'--manifest',path.join(base,'missing.json'),'--output',output]);
+  const result=await command(['run','--fixture','--repo',repo,'--state',state,'--manifest',path.join(base,'missing.json'),'--output',output]);
   assert.notEqual(result.code,0);assert.match(result.stderr,/outside the reviewed repository/);
   await assert.rejects(fs.stat(state),{code:'ENOENT'});
   await assert.rejects(fs.stat(output),{code:'ENOENT'});
+});
+
+test('CLI review commands require model configuration before reading inputs or creating state',async t=>{
+  const {base,repo,state}=await workspace(t),output=path.join(base,'report.json');
+  for(const operation of ['plan','run','resume']) {
+    const result=await command([operation,'--repo',repo,'--state',state,'--manifest',path.join(base,'missing.json'),
+      '--output',output,...(operation==='resume'?['--run-id','missing-run']:[])]);
+    assert.equal(result.code,1,result.stderr);
+    assert.match(result.stderr,/^MODEL_CONFIGURATION_REQUIRED:/);
+    assert.match(result.stderr,/requires --dsh-config PATH/);
+    assert.equal(result.stdout,'');
+    await assert.rejects(fs.stat(state),{code:'ENOENT'});
+    await assert.rejects(fs.stat(output),{code:'ENOENT'});
+  }
+});
+
+test('CLI synthetic diagnostics cannot also select a DSH configuration',async t=>{
+  const {base,repo,state}=await workspace(t);
+  for(const operation of ['plan','run','resume']) {
+    const result=await command([operation,'--fixture','--dsh-config',path.join(base,'missing-config.json'),
+      '--repo',repo,'--state',state,'--manifest',path.join(base,'missing.json'),
+      ...(operation==='resume'?['--run-id','missing-run']:[])]);
+    assert.equal(result.code,1,result.stderr);
+    assert.match(result.stderr,/^EXECUTOR_CONFIGURATION_CONFLICT: --fixture and --dsh-config are mutually exclusive/);
+    await assert.rejects(fs.stat(state),{code:'ENOENT'});
+  }
 });
 
 test('CLI rejects misrouted flags and sanitizes parser errors',async t=>{
   const {base,repo,state}=await workspace(t);
   const misrouted=await command(['report','--repo',repo,'--state',state,'--dsh-config',path.join(base,'missing.json')]);
   assert.notEqual(misrouted.code,0);assert.match(misrouted.stderr,/--dsh-config is not supported by report/);
+  for(const operation of ['doctor','report','demo','benchmark']) {
+    const fixture=await command([operation,'--fixture']);
+    assert.equal(fixture.code,1,fixture.stderr);assert.match(fixture.stderr,new RegExp(`--fixture is not supported by ${operation}`));
+  }
   const paired=await command(['benchmark','--paired-only','--repetitions','3','--output',path.join(base,'out')]);
   assert.notEqual(paired.code,0);assert.match(paired.stderr,/does not accept --repetitions/);
   const unknown=await command(['--not-an-option']);

@@ -47,17 +47,28 @@ for(const field of ['inputTokens','outputTokens','cacheReadTokens','cacheWriteTo
   const a=baseline.data.totals.usage?.[field],b=followup.data.totals.usage?.[field];
   knownUsage[field]=Number.isFinite(a)&&Number.isFinite(b)?a+b:null;
 }
-const summary={schemaVersion:1,date:'2026-11-11',timezone:'Asia/Shanghai',tests:{total:count('tests'),passed:count('pass'),failed:count('fail'),skipped:count('skipped')},
+const summary={schemaVersion:1,date:'2026-11-11',timezone:'Asia/Shanghai',
+  deliveryStatus:'historical_strict_policy_record',scope:'Historical strict-policy experiments only',currentCoreStatus:'See docs/core-functionality.md',
+  tests:{total:count('tests'),passed:count('pass'),failed:count('fail'),skipped:count('skipped'),scope:'Historical full-suite verification; not product acceptance'},
   fixture:fixtureSummary,baseline:{calls:baseline.data.totals.modelCalls,runs:baselineStages.length,completed:baselineStages.filter(s=>s.status==='completed').length,partial:baselineStages.filter(s=>s.status==='partial').length,usage:baseline.data.totals.usage},
   followup:{calls:followup.data.totals.modelCalls,protocol:followup.data.protocol??'supplemental-numbered-lines-pair-v1',stages:followupStages.map(s=>({stage:s.stage,status:s.status,totals:s.totals,score:s.score}))},
   totalModelCalls:calls,authorizedMaxModelCalls:48,knownUsage,
   rawReports:{fixture:'docs/evidence/fixture.json',baseline:'docs/evidence/real-baseline.json',followup:'docs/evidence/real-numbered-followup.json'},
   localRawReports:{fixture:fixture.file,baseline:baseline.file,followup:followup.file}};
 await writeFile('docs/measurement-summary.json',JSON.stringify(summary,null,2)+'\n');
-await writeFile('artifacts/experiment-budget-ledger.json',JSON.stringify({authorizedMax:48,baseline:{report:baseline.file,modelCalls:baseline.data.totals.modelCalls},followup:{report:followup.file,modelCalls:followup.data.totals.modelCalls},total:calls,remaining:48-calls},null,2)+'\n');
+let coreAccounting=null;
+try {coreAccounting=JSON.parse(await readFile('artifacts/core-work-budget.json','utf8'));}
+catch(error){if(error.code!=='ENOENT')throw error;}
+const coreCalls=coreAccounting?.currentPhaseModelCalls??0,authorizedMax=coreAccounting?.overallLimit??48;
+if(!Number.isSafeInteger(coreCalls)||coreCalls<0||!Number.isSafeInteger(authorizedMax)||calls+coreCalls>authorizedMax)throw new Error('Invalid cumulative request accounting');
+await writeFile('artifacts/experiment-budget-ledger.json',JSON.stringify({authorizedMax,
+  baseline:{report:baseline.file,modelCalls:baseline.data.totals.modelCalls},followup:{report:followup.file,modelCalls:followup.data.totals.modelCalls},
+  core:coreAccounting?{ledger:'artifacts/core-work-budget.json',modelCalls:coreCalls}:null,
+  total:calls+coreCalls,remaining:authorizedMax-calls-coreCalls},null,2)+'\n');
 const sec=value=>(value/1000).toFixed(2);
 const lines=[
   '# 实现、验证与实验记录','',
+  '**历史记录。** 本文记录早期严格策略版本，当时真实 AI 执行器没有复用成功路径，不能据此宣布产品完成。随后按用户新授权实现了 visible-model 策略；当前核心功能及真实验证状态见 [核心功能状态](core-functionality.md)。本文及旧实验数据不替代当前功能验收。','',
   '日期：2026-11-11（Asia/Shanghai）。所有模型实验只使用本项目生成的三个合成模块；没有向模型上传真实受审项目代码，没有修改或升级 DSH，也没有发布 npm 包。','',
   '## 实际实现','',
   '- 声明式任务 DAG、受控冻结输入、内容哈希与递归目录清单、上游结果版本、执行来源及严格复用判定。',
@@ -67,7 +78,7 @@ const lines=[
   '- JSON 与 Markdown 报告、确定性示例执行器、真实模型接口、独立答案、配对实验和请求预算。','',
   '补充审查发现的边界问题及修复见 [补充审查记录](followup-audit.md)。该记录区分本轮回归验证与此前真实模型实验。','',
   '## 测试','',
-  `最终本机测试：**${summary.tests.passed}/${summary.tests.total} 通过，${summary.tests.failed} 失败，${summary.tests.skipped} 跳过**。本机完整日志为 artifacts/tests-final.log；仓库 [CI 记录](https://github.com/hg1048596-pixel/dsh-incremental/actions) 单独保留缺少宿主时的跳过数量。`,
+  `历史本机整套测试：**${summary.tests.passed}/${summary.tests.total} 通过，${summary.tests.failed} 失败，${summary.tests.skipped} 跳过**。这些测试没有验证真实 AI 复用的成功路径。日志为 artifacts/tests-final.log；仓库 [CI 记录](https://github.com/hg1048596-pixel/dsh-incremental/actions) 单独保留缺少宿主时的跳过数量。`,
   '覆盖首次/无变化/修改/增删重命名、目录与权限变化、上游版本、未知依赖、腐败对象、失败和取消、进程 SIGKILL 后恢复、并发锁、路径越界、最终漂移、输入行号、错误证据、用量未知以及 CLI 的链接输出边界。',
   'DSH 测试使用实际安装的工具注册表、LLM 服务和官方适配器。HTTP 替身检查实际发送的 system/user 字段、无工具、4096 上限，以及拒绝工具调用后中止请求；这些测试不联网。','',
   '真实公开 CLI 与现有 pnpm 的隔离离线安装、配置组合、安装副本的工具加载和卸载也已通过，详情见 [安装验证](installation-verification.md)。预先取消和中途取消的回归保证未开始任务保留缓存，已开始新代次不回退旧成功。','',
@@ -101,4 +112,4 @@ const lines=[
   '下一步优先接入可验证模型版本的本地/固定部署，才能在当前严格策略下测量真实 AI 复用；其次降低 ACL 检查进程开销，并扩大包含跨模块依赖与盲置缺陷的样本。','',
 ];
 await writeFile('docs/implementation-report.md',lines.join('\n'));
-console.log(JSON.stringify({report:'docs/implementation-report.md',tests:summary.tests,fixture:fixtureSummary,totalModelCalls:calls}));
+console.log(JSON.stringify({report:'docs/implementation-report.md',tests:summary.tests,fixture:fixtureSummary,historicalModelCalls:calls,currentTotalModelCalls:calls+coreCalls}));

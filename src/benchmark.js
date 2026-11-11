@@ -181,9 +181,8 @@ async function disposeExecutors(executors) {
 
 function withDispatchBudget(executor, budget) {
   if (!executor || typeof executor.execute !== 'function') throw new TypeError('executorFactory must return an executor');
-  return {
-    identity: executor.identity,
-    reuseEligibility: executor.reuseEligibility,
+  const wrapped = {
+    ...executor,
     async execute(input) {
       if (executor.identity?.kind !== 'fixture') {
         if (budget.dispatched >= budget.max) {
@@ -199,6 +198,16 @@ function withDispatchBudget(executor, budget) {
       return executor.execute(input);
     },
   };
+  if(typeof executor.prepareRun==='function')wrapped.prepareRun=async context=>withDispatchBudget(await executor.prepareRun(context),budget);
+  return wrapped;
+}
+
+function effectiveReuseEligibility(report) {
+  const tasks=report.tasks||[],reasons=tasks.flatMap(task=>task.reuseEligibility?.reasons||[]);
+  return {eligible:tasks.length>0&&tasks.every(task=>task.reuseEligibility?.eligible===true),
+    reasons:[...new Map(reasons.map(reason=>[JSON.stringify(reason),reason])).values()],
+    risks:[...new Set(tasks.flatMap(task=>task.reuseEligibility?.risks||[]))].sort(),
+    ineligibleTaskIds:tasks.filter(task=>task.reuseEligibility?.eligible!==true).map(task=>task.taskId)};
 }
 
 function sumUsage(reports) {
@@ -321,8 +330,9 @@ export async function runBenchmark({ outputDir, executorFactory, repetitions = 3
           stage,
           full,
           sourceSnapshot: snapshotName,
-          executorIdentity: executor.identity,
-          reuseEligibility: executor.reuseEligibility,
+          executorIdentity: report.executor,
+          reuseEligibility: effectiveReuseEligibility(report),
+          reusePolicy: report.reusePolicy,identityObservation: report.identityObservation,
           status: report.status,
           totals: report.totals,
           score: scoreReport(report, truth.snapshots[snapshotName]),
@@ -416,8 +426,9 @@ export async function runPairedBenchmark({ outputDir, executorFactory, signal, p
       const consumedSnapshot = verifyConsumedSnapshot(report, truth.snapshots.pricingFixed, stage);
       await verifyStageSnapshot(example, truth.snapshots.pricingFixed, initial.manifestSha256, stage);
       trial.stages.push({
-        stage, full, sourceSnapshot: 'pricingFixed', executorIdentity: executor.identity,
-        reuseEligibility: executor.reuseEligibility, status: report.status, totals: report.totals,
+        stage, full, sourceSnapshot: 'pricingFixed', executorIdentity: report.executor,
+        reuseEligibility: effectiveReuseEligibility(report),reusePolicy:report.reusePolicy,identityObservation:report.identityObservation,
+        status: report.status, totals: report.totals,
         score: scoreReport(report, truth.snapshots.pricingFixed),
         consumedSnapshot,
         rawReportPath: path.relative(artifactDir, rawReportPath).replaceAll('\\', '/'),

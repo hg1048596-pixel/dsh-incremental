@@ -237,3 +237,87 @@ test('explicit incomplete finish reasons reject otherwise valid results and reti
     assert.deepEqual((await new CacheStore(o.stateDir,o.repoRoot).readHead('a')).record.provenance.finishReason,finishReason);
   }
 });
+
+test('visible-model TTL expires from creation and cache hits never extend the window',async t=>{
+  const o=await setup(t);let time=Date.UTC(2026,10,11,0,0,0);
+  o.now=()=>time;o.executor.cachePolicy={mode:'visible-model',maxAgeMs:1000};
+  o.executor.reuseEligibility={eligible:true,reasons:[],risks:['model_revision_unverified','provider_update_undetectable']};
+  const first=await runReview(o),created=first.tasks[0].resultVersion;
+  time+=900;const hit=await runReview(o);assert.equal(hit.totals.reused,3);
+  assert.equal(hit.tasks[0].cacheCheck.ageMs,900);assert.equal(hit.tasks[0].cacheCheck.status,'within_window');
+  assert.equal(hit.tasks[0].resultVersion,created);
+  assert(hit.tasks[2].reuseEligibility.risks.includes('model_revision_unverified'));
+  time+=100;const plan=await planReview(o);assert(plan.tasks.every(task=>task.status==='would_execute'));
+  assert(plan.tasks[0].reasons.some(reason=>reason.code==='cache_expired'));
+  const expired=await runReview(o);assert.equal(expired.totals.executed,3);
+  assert(expired.tasks[0].reasons.some(reason=>reason.code==='cache_expired'));
+  assert.notEqual(expired.tasks[0].resultVersion,created);
+});
+
+test('cache policy changes invalidate matching content and full execution bypasses valid windows',async t=>{
+  const o=await setup(t);o.executor.cachePolicy={mode:'visible-model',maxAgeMs:60000};
+  await runReview(o);assert.equal((await runReview(o)).totals.reused,3);
+  o.executor.cachePolicy={mode:'visible-model',maxAgeMs:120000};
+  const changed=await runReview(o);assert.equal(changed.totals.executed,3);
+  assert(changed.tasks[0].reasons.some(reason=>reason.code==='reuse_policy_changed'));
+  const forced=await runReview({...o,full:true});assert.equal(forced.totals.executed,3);
+  assert(forced.tasks.every(task=>task.reasons.some(reason=>reason.code==='forced_full')));
+});
+
+test('each plan and run prepares an isolated identity view without fingerprinting observation time',async t=>{
+  const o=await setup(t);let preparations=0,name='Model A',eligible=true;
+  const execute=o.executor.execute;
+  o.executor.prepareRun=async ({repoRoot})=>{
+    assert.equal(repoRoot,o.repoRoot);preparations++;
+    return Object.freeze({
+      identity:{...o.executor.identity,advertisedModel:{id:'route-model',name}},
+      cachePolicy:{mode:'visible-model',maxAgeMs:60000},
+      reuseEligibility:{eligible,reasons:eligible?[]:['model_metadata_unavailable'],risks:['model_revision_unverified']},
+      identityObservation:{kind:'advertised_route',status:eligible?'observed':'unavailable',observedAt:String(preparations),requestCount:1,risks:['model_revision_unverified']},
+      execute,
+    });
+  };
+  const first=await runReview(o),hit=await runReview(o);
+  assert.equal(preparations,2);assert.equal(hit.totals.reused,3);
+  assert.notEqual(first.identityObservation.observedAt,hit.identityObservation.observedAt);
+  assert.equal((await planReview(o)).tasks[0].status,'would_reuse');assert.equal(preparations,3);
+  name='Model B';const renamed=await runReview(o);assert.equal(renamed.totals.executed,3);
+  assert(renamed.tasks[0].reasons.some(reason=>reason.code==='executor_or_model_changed'));
+  eligible=false;const unavailable=await runReview(o);assert.equal(unavailable.totals.executed,3);
+  assert(unavailable.tasks[0].reasons.some(reason=>reason.code==='model_metadata_unavailable'));
+  assert.equal(unavailable.tasks[0].reuseEligibility.eligible,false);
+});
+
+test('future or malformed result timestamps cannot be reused',async t=>{
+  const o=await setup(t);const time=Date.UTC(2026,10,11);o.now=()=>time;
+  o.executor.cachePolicy={mode:'visible-model',maxAgeMs:60000};
+  for(const timestamp of [new Date(time+1).toISOString(),'not-a-timestamp']) {
+    await runReview(o);const store=new CacheStore(o.stateDir,o.repoRoot);await store.acquire();
+    try {
+      const {record}=await store.readHead('a'),generation=await store.begin('a','timestamp-check');
+      await store.commit('a',generation,{...record,resultVersion:generation,createdAt:timestamp});
+    } finally {await store.release();}
+    const report=await runReview(o);assert.equal(report.tasks[0].status,'executed');
+    assert(report.tasks[0].reasons.some(reason=>reason.code==='cache_timestamp_invalid'));
+  }
+});
+
+test('unknown DSH permissions prevent reuse and session security identities remain cache boundaries',async t=>{
+  const o=await setup(t);
+  o.securityPolicy={authorizationSource:'fixed_host_configuration',allowRemote:true,approvedRepoRoot:o.repoRoot,
+    sandbox:{status:'known',mode:'read-only',workspaceRoot:o.repoRoot,sessionBound:true,sessionId:'session-one'},
+    approval:{status:'known',effectivePolicy:'ask',source:'configured_default'}};
+  await runReview(o);
+  assert.equal((await runReview(o)).totals.reused,3);
+  o.securityPolicy.sandbox.sessionId='session-two';
+  const changed=await runReview(o);assert.equal(changed.totals.executed,3);
+  assert(changed.tasks[0].reasons.some(reason=>reason.code==='security_policy_changed'));
+  assert.equal(changed.securityPolicy.sandbox.sessionId,'session-two');
+  const {record}=await new CacheStore(o.stateDir,o.repoRoot).readHead('a');
+  assert.equal(record.components.securityPolicy.sandbox.sessionId,'session-two');
+  assert.equal(record.provenance.securityPolicy.sandbox.sessionId,'session-two');
+  o.securityPolicy.approval={status:'unknown',reason:'service unavailable'};
+  const unknown=await runReview(o);assert.equal(unknown.totals.executed,3);
+  assert(unknown.tasks.every(task=>task.reuseEligibility.eligible===false));
+  assert(unknown.tasks[0].reasons.some(reason=>reason.code==='host_policy_unverified'));
+});
