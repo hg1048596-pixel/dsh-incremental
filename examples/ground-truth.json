@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "notice": "Scoring reference outside the reviewed repository. It is never included in review requests. Matching checks these pre-fixed source locations and evidence, not completeness of semantic review.",
+  "snapshots": {
+    "initial": {
+      "files": {
+        "src/auth.js": {
+          "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e"
+        },
+        "src/pricing.js": {
+          "sha256": "e1a9f20c15e7367d21629aba90e4721419302b384820fa43ab32680005ae33cf"
+        },
+        "src/pagination.js": {
+          "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f"
+        }
+      },
+      "findings": [
+        {
+          "id": "auth-substring-role",
+          "title": "Substring role matching grants account-management access",
+          "path": "src/auth.js",
+          "line": 7,
+          "evidence": "return user.roles.some((role) => role.includes('admin'));",
+          "severity": "high"
+        },
+        {
+          "id": "pricing-negative-quantity",
+          "title": "Negative quantities produce a negative checkout charge",
+          "path": "src/pricing.js",
+          "line": 6,
+          "evidence": "if (!Number.isInteger(quantity)) {",
+          "severity": "medium"
+        },
+        {
+          "id": "pagination-absolute-end",
+          "title": "Pagination uses page size as an absolute slice end",
+          "path": "src/pagination.js",
+          "line": 11,
+          "evidence": "return items.slice(offset, pageSize);",
+          "severity": "medium"
+        }
+      ]
+    },
+    "pricingFixed": {
+      "files": {
+        "src/auth.js": {
+          "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e"
+        },
+        "src/pricing.js": {
+          "sha256": "2ab9c918b2067d9a508c6b444441f82fee0131aefdcfd74d67816ae3f122da6c"
+        },
+        "src/pagination.js": {
+          "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f"
+        }
+      },
+      "findings": [
+        {
+          "id": "auth-substring-role",
+          "title": "Substring role matching grants account-management access",
+          "path": "src/auth.js",
+          "line": 7,
+          "evidence": "return user.roles.some((role) => role.includes('admin'));",
+          "severity": "high"
+        },
+        {
+          "id": "pagination-absolute-end",
+          "title": "Pagination uses page size as an absolute slice end",
+          "path": "src/pagination.js",
+          "line": 11,
+          "evidence": "return items.slice(offset, pageSize);",
+          "severity": "medium"
+        }
+      ]
+    }
+  }
+}

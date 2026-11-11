@@ -1,0 +1,1344 @@
+{
+  "schemaVersion": 1,
+  "kind": "dsh-incremental-portable-evidence",
+  "id": "followup",
+  "projection": {
+    "sourcePath": "artifacts/benchmark-real-numbered/supplemental-numbered-lines-pair-2026-11-11T03-12-40-167Z-7c7aa84c/benchmark.json",
+    "sourceSha256": "d601776e91287d37dec980028f54e8246dbb5baee9a1e3d62f4150685eba60b1",
+    "sourceSchemaVersion": 1,
+    "method": "Explicit allowlist projection of existing local synthetic experiment records; no new model calls.",
+    "excluded": [
+      "credentials and credential configuration",
+      "absolute host paths and runtime installation locations",
+      "filesystem ownership, access-control lists and security identifiers",
+      "full requests, frozen source prompt bodies, and cache objects"
+    ],
+    "missingValues": "Unknown or unrecorded measurements remain null. Missing rejected bodies and consumed snapshots are labeled explicitly.",
+    "semanticValidation": "Source-evidence validation and fixed-reference coverage do not establish model conclusion correctness, completeness, precision, or equivalence."
+  },
+  "createdAt": "2026-11-11T03:13:36.994Z",
+  "mode": "real",
+  "repetitions": 1,
+  "requestedRepetitions": 1,
+  "cancelled": false,
+  "protocol": {
+    "id": "supplemental-numbered-lines-pair-v1",
+    "description": "Single independent-state pair on the modified snapshot, using explicit source line numbers in requests.",
+    "relationshipToBaseline": "Separate follow-up protocol; do not pool with baseline measurements or infer seeded cache savings.",
+    "supplementary": true,
+    "seededIncrementalState": false
+  },
+  "controls": {
+    "concurrency": 1,
+    "retries": 0,
+    "changedPairOrder": "full then incremental; a single supplementary pair",
+    "permissionVerification": "native",
+    "requestPresentation": "explicit source line numbers",
+    "fullAndIncrementalUseIdenticalChangedSnapshot": true,
+    "separateFullAndIncrementalStateDirectories": true,
+    "executorIdentityConsistent": true,
+    "groundTruthOutsideReviewedRepository": true,
+    "seededIncrementalState": false,
+    "changedFiles": [
+      "src/pricing.js"
+    ]
+  },
+  "budget": {
+    "max": 8,
+    "dispatched": 8
+  },
+  "totals": {
+    "runs": 2,
+    "executed": 8,
+    "reused": 0,
+    "modelCalls": 8,
+    "knownModelCalls": 8,
+    "unknownCallCounts": 0,
+    "runsWithUsage": 2,
+    "totalMs": 54345.854699999996,
+    "usage": {
+      "inputTokens": 4499,
+      "outputTokens": 2531,
+      "cacheReadTokens": 2176,
+      "cacheWriteTokens": null,
+      "reasoningTokens": null,
+      "totalTokens": null
+    }
+  },
+  "trials": [
+    {
+      "repetition": 1,
+      "initialSnapshot": {
+        "manifestSha256": "32431842d0d13076250c59614413710a74b99e1c526771472c68ff523d664c26",
+        "files": {
+          "src/auth.js": {
+            "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+            "bytes": 248
+          },
+          "src/pricing.js": {
+            "sha256": "e1a9f20c15e7367d21629aba90e4721419302b384820fa43ab32680005ae33cf",
+            "bytes": 414
+          },
+          "src/pagination.js": {
+            "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+            "bytes": 449
+          }
+        }
+      },
+      "changedSnapshot": {
+        "manifestSha256": "32431842d0d13076250c59614413710a74b99e1c526771472c68ff523d664c26",
+        "files": {
+          "src/auth.js": {
+            "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+            "bytes": 248
+          },
+          "src/pricing.js": {
+            "sha256": "2ab9c918b2067d9a508c6b444441f82fee0131aefdcfd74d67816ae3f122da6c",
+            "bytes": 430
+          },
+          "src/pagination.js": {
+            "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+            "bytes": 449
+          }
+        }
+      },
+      "changedPairOrder": [
+        "modified-full",
+        "modified-incremental"
+      ],
+      "comparison": {
+        "exactSummaryEvidenceEqual": false,
+        "executedTaskReduction": 0,
+        "modelCallReduction": 0,
+        "modelCallReductionFraction": 0,
+        "observedWallTimeDifferenceMs": 454.0601000000024
+      },
+      "stages": [
+        {
+          "stage": "modified-full",
+          "full": true,
+          "sourceSnapshot": "pricingFixed",
+          "status": "completed",
+          "executorIdentity": {
+            "kind": "dsh",
+            "version": "0.1.0-rc.6",
+            "adapter": "deepseek",
+            "isolation": "independent_cordis_root",
+            "protocol": "structured_review_v1",
+            "runnerHash": "f7fdf02a3a084e445cbacb1bfd7ddaac4b7e09a2627e36c44db79f2d85cde525",
+            "maxTokens": 4096,
+            "timeoutMs": 120000,
+            "model": {
+              "provider": "deepseek-official",
+              "id": "deepseek-flash",
+              "immutableRevision": null,
+              "assurance": "config_only"
+            },
+            "connection": {
+              "adapter": "deepseek",
+              "thinking": "disabled",
+              "reasoningEffort": "off"
+            },
+            "runtimeHashes": {
+              "@deepseek-ai/dsh-llm": "7e02740f9b10cfb965453ca26eb23795c4e8dc818038dd2c0f80aaade0100ea1",
+              "@deepseek-ai/dsh-llm-deepseek": "093f80a934f1ecc0791599a9114caed85ab5e6fe1da5ab8d29639cad33b5d377"
+            }
+          },
+          "reuseEligibility": {
+            "eligible": false,
+            "reasons": [
+              "model_revision_unknown"
+            ]
+          },
+          "score": {
+            "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+            "summaryAvailable": true,
+            "summaryCurrentSourceValid": true,
+            "expectedCount": 2,
+            "observedUniqueCount": 3,
+            "matchedCount": 2,
+            "knownFindingCoverage": 1,
+            "matchedIds": [
+              "auth-substring-role",
+              "pagination-absolute-end"
+            ],
+            "missingIds": [],
+            "unmatchedFindings": [
+              {
+                "title": "Two-decimal rounding can yield incorrect cent totals due to binary floating-point representation",
+                "evidence": "return Math.round(unitPrice * quantity * 100) / 100;",
+                "severity": "low",
+                "path": "src/pricing.js",
+                "line": 10
+              }
+            ]
+          },
+          "totals": {
+            "executed": 4,
+            "reused": 0,
+            "failed": 0,
+            "blocked": 0,
+            "cancelled": 0,
+            "modelCalls": 4,
+            "knownModelCalls": 4,
+            "unknownCallCounts": 0,
+            "totalMs": 27399.9574,
+            "snapshotMs": 17240.935900000004,
+            "executionMs": 9635.590400000001,
+            "cacheMs": 209.3822999999984,
+            "usage": {
+              "inputTokens": 2947,
+              "outputTokens": 1313,
+              "cacheReadTokens": 384,
+              "cacheWriteTokens": null,
+              "reasoningTokens": null,
+              "totalTokens": null
+            }
+          },
+          "consumedSnapshot": null,
+          "run": {
+            "runId": "b9cbf7d2-0c05-4388-9e07-8ae9dd5fecf0",
+            "startedAt": "2026-11-11T03:12:42.535Z",
+            "finishedAt": "2026-11-11T03:13:09.935Z",
+            "mode": "full",
+            "manifestDigest": "1baebcb4e61572691559af2ba0611f27737f88fb58052af446a1fba7335297e0",
+            "scope": "Declared immutable inputs only; cache validity is not conclusion correctness.",
+            "sourcePath": "repetition-01/modified-full.report.json",
+            "sourceSha256": "be965fa045b400d0301412d5036403db970f0dbc175726310ae11a04162c136e",
+            "tasks": [
+              {
+                "taskId": "auth",
+                "status": "executed",
+                "resultVersion": "d86fb76a-21db-4d47-9c58-d4dee7cce52c",
+                "reasons": [
+                  {
+                    "code": "forced_full",
+                    "message": "Full execution was requested"
+                  },
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The declared authorization helper canManageAccount contradicts its own documented contract: the comment says only the exact admin role grants permission, but the implementation uses substring matching via role.includes('admin'). This accepts roles such as 'superadmin', 'admin-guest', 'not_admin', or any string containing 'admin', which is a concrete privilege-escalation risk if roles are attacker-influenced or broader than intended.",
+                  "findings": [
+                    {
+                      "title": "Role check uses substring match instead of exact admin role, permitting privilege escalation",
+                      "evidence": "  return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Caller and source of the roles array (client-supplied vs. server-trusted) is not shown",
+                    "Set of legitimate role names is not declared",
+                    "Whether role elements are guaranteed to be strings (non-string roles would throw on .includes) is not shown"
+                  ],
+                  "limitations": [
+                    "Only src/auth.js was supplied; no callers, role definitions, or tests were examined.",
+                    "Assessment rests on the mismatch between the documented 'exact admin role' intent and the substring check; cannot verify actual exploitability without knowing how roles are populated."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 627,
+                  "outputTokens": 259,
+                  "cacheReadTokens": 0,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    },
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Caller and source of the roles array (client-supplied vs. server-trusted) is not shown; Set of legitimate role names is not declared; Whether role elements are guaranteed to be strings (non-string roles would throw on .includes) is not shown"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 7054.9778000000015,
+                  "snapshotMs": 4722.9924,
+                  "executionMs": 2250.7731999999996,
+                  "cacheMs": 53.95209999999952
+                },
+                "inputSnapshot": {
+                  "digest": "5d10c06d3d3af77d73b8591fd6c69013b11784b32d3b44e46b73935aa9252256",
+                  "files": [
+                    {
+                      "path": "src/auth.js",
+                      "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+                      "bytes": 248
+                    }
+                  ],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "136c2d9bd3e4f893cba31a35220d0d2a357237d86a3e4d1020388d0f58f0b10e",
+                  "requestSha256": "83bb332eb81786705ba70eec39cfbbf595e130ddaa922c00b06e5aae4a010089",
+                  "requestBytes": 2852,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              },
+              {
+                "taskId": "pricing",
+                "status": "executed",
+                "resultVersion": "4c5fff75-09bd-4747-b7d1-3ca9258b4c80",
+                "reasons": [
+                  {
+                    "code": "forced_full",
+                    "message": "Full execution was requested"
+                  },
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "Reviewed the single supplied file src/pricing.js. It validates unitPrice (finite, nonnegative) and quantity (nonnegative integer) and returns a value rounded to two decimals. The main concrete concern is floating-point rounding behavior at the half-cent boundary and precision drift for large products, which can produce off-by-one-cent totals. No other defect is provable from the supplied bytes alone.",
+                  "findings": [
+                    {
+                      "title": "Two-decimal rounding can yield incorrect cent totals due to binary floating-point representation",
+                      "evidence": "return Math.round(unitPrice * quantity * 100) / 100;",
+                      "severity": "low",
+                      "path": "src/pricing.js",
+                      "line": 10
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Currency/money representation conventions expected by callers (e.g., whether amounts are dollars or integer cents)",
+                    "Whether callers rely on exact half-up rounding at .005 boundaries",
+                    "Magnitude ranges of unitPrice and quantity in real usage, which affect floating-point precision"
+                  ],
+                  "limitations": [
+                    "Only src/pricing.js was supplied; no callers, tests, or configuration were examined, so downstream impact and intended rounding policy cannot be confirmed.",
+                    "No code was executed; conclusions about floating-point behavior are based on standard IEEE-754 semantics, not observed output.",
+                    "Whether the flagged rounding behavior is an actual defect depends on undeclared specifications for money handling and acceptable tolerances."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 628,
+                  "outputTokens": 283,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    },
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Currency/money representation conventions expected by callers (e.g., whether amounts are dollars or integer cents); Whether callers rely on exact half-up rounding at .005 boundaries; Magnitude ranges of unitPrice and quantity in real usage, which affect floating-point precision"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 6706.138500000002,
+                  "snapshotMs": 4152.495400000002,
+                  "executionMs": 2470.6221000000005,
+                  "cacheMs": 58.223299999999654
+                },
+                "inputSnapshot": {
+                  "digest": "be3de09439ea7cbfb701d4840fac49e5de3b2a7af543878ca0153c730120883c",
+                  "files": [
+                    {
+                      "path": "src/pricing.js",
+                      "sha256": "2ab9c918b2067d9a508c6b444441f82fee0131aefdcfd74d67816ae3f122da6c",
+                      "bytes": 430
+                    }
+                  ],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "e486019b57bf5d20dd1deb1de90e96e1c705cd56c30fc0ab613eacaa9e425df0",
+                  "requestSha256": "589df91c1a2c90f9704ca70b7291f24d89dc277298119720158abebe583d5a00",
+                  "requestBytes": 3294,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              },
+              {
+                "taskId": "pagination",
+                "status": "executed",
+                "resultVersion": "34ddbc82-6274-4eda-9f63-d2fda8fb2d4d",
+                "reasons": [
+                  {
+                    "code": "forced_full",
+                    "message": "Full execution was requested"
+                  },
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The pagination helper validates inputs and computes a page offset, but its slice call uses pageSize as the end boundary instead of offset + pageSize, so every page returns the wrong range (repeated first-page content).",
+                  "findings": [
+                    {
+                      "title": "Slice end boundary ignores offset, returning incorrect page contents",
+                      "evidence": "return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only src/pagination.js was supplied; no callers, tests, or expected pagination contract outside the one-line comment were reviewed."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 664,
+                  "outputTokens": 132,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 5662.838599999997,
+                  "snapshotMs": 4122.119700000001,
+                  "executionMs": 1468.0155999999988,
+                  "cacheMs": 47.229300000000876
+                },
+                "inputSnapshot": {
+                  "digest": "c21ecc2677089793a4b8d222d5e9ab5f9758760e5c2ff4b708ae7e16277282fe",
+                  "files": [
+                    {
+                      "path": "src/pagination.js",
+                      "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+                      "bytes": 449
+                    }
+                  ],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "8da12c27d7e548cf4bd52dd80f3e8dd13051ed65068005894aafcd267ba904e2",
+                  "requestSha256": "c824963664154563eacff3f531e47cb629188b240969137128a3a0e2e0834d13",
+                  "requestBytes": 3375,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              },
+              {
+                "taskId": "summary",
+                "status": "executed",
+                "resultVersion": "7452368d-db9c-4a91-b5b7-77c2e4d596e9",
+                "reasons": [
+                  {
+                    "code": "forced_full",
+                    "message": "Full execution was requested"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream auth did not reuse its previous result",
+                    "sourceTaskId": "auth"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pricing did not reuse its previous result",
+                    "sourceTaskId": "pricing"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pagination did not reuse its previous result",
+                    "sourceTaskId": "pagination"
+                  },
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "Combined review of the supplied upstream results for auth, pricing, and pagination. Auth (src/auth.js:7, high): the documented 'exact admin role' contract is contradicted by a substring check (`role.includes('admin')`), accepting roles like 'superadmin' or 'not_admin' — a potential privilege-escalation risk. Pricing (src/pricing.js:10, low): validates inputs and rounds to two decimals, but binary floating-point rounding at half-cent boundaries and precision drift for large products can yield off-by-one-cent totals. Pagination (src/pagination.js:11, high): the slice end boundary uses pageSize instead of offset + pageSize, so every page returns the wrong range (repeated first-page content). No duplicate findings were present; each finding is preserved with its original path, line, and evidence.",
+                  "findings": [
+                    {
+                      "title": "Role check uses substring match instead of exact admin role, permitting privilege escalation",
+                      "evidence": "  return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    },
+                    {
+                      "title": "Slice end boundary ignores offset, returning incorrect page contents",
+                      "evidence": "return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    },
+                    {
+                      "title": "Two-decimal rounding can yield incorrect cent totals due to binary floating-point representation",
+                      "evidence": "return Math.round(unitPrice * quantity * 100) / 100;",
+                      "severity": "low",
+                      "path": "src/pricing.js",
+                      "line": 10
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Caller and source of the roles array in src/auth.js (client-supplied vs. server-trusted) is not shown",
+                    "Set of legitimate role names for src/auth.js is not declared",
+                    "Whether role elements in src/auth.js are guaranteed to be strings (non-string roles would throw on .includes) is not shown",
+                    "Callers, tests, and expected pagination contract outside the one-line comment for src/pagination.js are not supplied",
+                    "Currency/money representation conventions expected by callers of src/pricing.js (e.g., dollars vs. integer cents) are not declared",
+                    "Whether callers of src/pricing.js rely on exact half-up rounding at .005 boundaries is not shown",
+                    "Magnitude ranges of unitPrice and quantity in src/pricing.js real usage, which affect floating-point precision, are not shown"
+                  ],
+                  "limitations": [
+                    "This summary is synthesized only from the supplied upstream review results and their cited file/line evidence; no source files were supplied directly in this request.",
+                    "No files were examined beyond what the upstream results describe (src/auth.js, src/pagination.js, src/pricing.js); no callers, tests, role definitions, or configuration were reviewed.",
+                    "No code was executed; floating-point and other behavioral conclusions rest on standard semantics as reported upstream, not observed output.",
+                    "Upstream limitations are carried forward: exploitability of the auth substring check, actual cent-rounding defect status for pricing, and pagination contract expectations cannot be confirmed without undeclared context."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 1028,
+                  "outputTokens": 639,
+                  "cacheReadTokens": 128,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    },
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Caller and source of the roles array in src/auth.js (client-supplied vs. server-trusted) is not shown; Set of legitimate role names for src/auth.js is not declared; Whether role elements in src/auth.js are guaranteed to be strings (non-string roles would throw on .includes) is not shown; Callers, tests, and expected pagination contract outside the one-line comment for src/pagination.js are not supplied; Currency/money representation conventions expected by callers of src/pricing.js (e.g., dollars vs. integer cents) are not declared; Whether callers of src/pricing.js rely on exact half-up rounding at .005 boundaries is not shown; Magnitude ranges of unitPrice and quantity in src/pricing.js real usage, which affect floating-point precision, are not shown"
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream auth is not eligible for reuse",
+                      "sourceTaskId": "auth"
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream pricing is not eligible for reuse",
+                      "sourceTaskId": "pricing"
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream pagination is not eligible for reuse",
+                      "sourceTaskId": "pagination"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 7767.1838000000025,
+                  "snapshotMs": 4243.328400000002,
+                  "executionMs": 3446.179500000002,
+                  "cacheMs": 49.97759999999835
+                },
+                "inputSnapshot": {
+                  "digest": "602528fa36caac13a00a11101e5abddf2f27a93689f5e090871aac8d13486cbc",
+                  "files": [],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "fc3107fcf14ec1485e59cf9af47225f6d695532e389ec071d5b03d339146122d",
+                  "requestSha256": "748f7c95bcf38392814758fbe7f66e568a1f90f40ddcec9c6828b0b4ff1d6399",
+                  "requestBytes": 5633,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              }
+            ]
+          }
+        },
+        {
+          "stage": "modified-incremental",
+          "full": false,
+          "sourceSnapshot": "pricingFixed",
+          "status": "completed",
+          "executorIdentity": {
+            "kind": "dsh",
+            "version": "0.1.0-rc.6",
+            "adapter": "deepseek",
+            "isolation": "independent_cordis_root",
+            "protocol": "structured_review_v1",
+            "runnerHash": "f7fdf02a3a084e445cbacb1bfd7ddaac4b7e09a2627e36c44db79f2d85cde525",
+            "maxTokens": 4096,
+            "timeoutMs": 120000,
+            "model": {
+              "provider": "deepseek-official",
+              "id": "deepseek-flash",
+              "immutableRevision": null,
+              "assurance": "config_only"
+            },
+            "connection": {
+              "adapter": "deepseek",
+              "thinking": "disabled",
+              "reasoningEffort": "off"
+            },
+            "runtimeHashes": {
+              "@deepseek-ai/dsh-llm": "7e02740f9b10cfb965453ca26eb23795c4e8dc818038dd2c0f80aaade0100ea1",
+              "@deepseek-ai/dsh-llm-deepseek": "093f80a934f1ecc0791599a9114caed85ab5e6fe1da5ab8d29639cad33b5d377"
+            }
+          },
+          "reuseEligibility": {
+            "eligible": false,
+            "reasons": [
+              "model_revision_unknown"
+            ]
+          },
+          "score": {
+            "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+            "summaryAvailable": true,
+            "summaryCurrentSourceValid": true,
+            "expectedCount": 2,
+            "observedUniqueCount": 2,
+            "matchedCount": 2,
+            "knownFindingCoverage": 1,
+            "matchedIds": [
+              "auth-substring-role",
+              "pagination-absolute-end"
+            ],
+            "missingIds": [],
+            "unmatchedFindings": []
+          },
+          "totals": {
+            "executed": 4,
+            "reused": 0,
+            "failed": 0,
+            "blocked": 0,
+            "cancelled": 0,
+            "modelCalls": 4,
+            "knownModelCalls": 4,
+            "unknownCallCounts": 0,
+            "totalMs": 26945.897299999997,
+            "snapshotMs": 16389.063700000017,
+            "executionMs": 10051.085499999994,
+            "cacheMs": 208.31719999998677,
+            "usage": {
+              "inputTokens": 1552,
+              "outputTokens": 1218,
+              "cacheReadTokens": 1792,
+              "cacheWriteTokens": null,
+              "reasoningTokens": null,
+              "totalTokens": null
+            }
+          },
+          "consumedSnapshot": null,
+          "run": {
+            "runId": "d91c0115-6f46-4be3-a600-11ecd4ac865a",
+            "startedAt": "2026-11-11T03:13:10.008Z",
+            "finishedAt": "2026-11-11T03:13:36.954Z",
+            "mode": "incremental",
+            "manifestDigest": "1baebcb4e61572691559af2ba0611f27737f88fb58052af446a1fba7335297e0",
+            "scope": "Declared immutable inputs only; cache validity is not conclusion correctness.",
+            "sourcePath": "repetition-01/modified-incremental.report.json",
+            "sourceSha256": "403d9c703258a9e9125a9224d7144c812f2859e34af157ad74f680b385d0b5f3",
+            "tasks": [
+              {
+                "taskId": "auth",
+                "status": "executed",
+                "resultVersion": "ac58e3bb-1f92-47dd-8068-9a3217a22750",
+                "reasons": [
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The reviewed module claims that only the exact admin role grants account-management permission, but the predicate uses substring matching via role.includes('admin'), which authorizes roles such as 'superadmin', 'not_admin', or 'administrator'. This is a concrete authorization defect in the supplied source.",
+                  "findings": [
+                    {
+                      "title": "Substring role match grants permission to non-admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Exact set and semantics of role strings issued by the identity provider/token source",
+                    "Whether role values can be attacker-controlled or user-selectable"
+                  ],
+                  "limitations": [
+                    "Review is limited to the single supplied file src/auth.js; no callers, token schema, or role-assignment logic were provided, so whether the substring behavior is exploitable end-to-end is unknown.",
+                    "No tests or runtime behavior were examined; the finding is based on static reading of the supplied predicate and its stated contract on line 1."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 243,
+                  "outputTokens": 223,
+                  "cacheReadTokens": 384,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    },
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Exact set and semantics of role strings issued by the identity provider/token source; Whether role values can be attacker-controlled or user-selectable"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 6295.609699999997,
+                  "snapshotMs": 4129.5502000000015,
+                  "executionMs": 2088.124100000001,
+                  "cacheMs": 51.92189999999755
+                },
+                "inputSnapshot": {
+                  "digest": "5d10c06d3d3af77d73b8591fd6c69013b11784b32d3b44e46b73935aa9252256",
+                  "files": [
+                    {
+                      "path": "src/auth.js",
+                      "sha256": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+                      "bytes": 248
+                    }
+                  ],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "136c2d9bd3e4f893cba31a35220d0d2a357237d86a3e4d1020388d0f58f0b10e",
+                  "requestSha256": "83bb332eb81786705ba70eec39cfbbf595e130ddaa922c00b06e5aae4a010089",
+                  "requestBytes": 2852,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              },
+              {
+                "taskId": "pricing",
+                "status": "executed",
+                "resultVersion": "a095153f-01c3-4f00-95dc-915ecd6f2147",
+                "reasons": [
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The supplied file defines a single function, calculateLineTotal, which validates unitPrice as a finite nonnegative number and quantity as a nonnegative integer, then returns the product rounded to two decimal places via Math.round(x*100)/100. Within the supplied text I found no concrete correctness defect that can be established from these bytes alone; potential concerns (binary floating-point rounding edge cases and overflow to Infinity for extreme inputs) are noted as limitations rather than confirmed defects.",
+                  "findings": [],
+                  "unknownDependencies": [
+                    "Consumer expectations for currency rounding mode (e.g., half-up vs banker's rounding) and accepted unitPrice precision are not declared in the supplied input.",
+                    "Whether callers rely on Number.MAX_SAFE_INTEGER bounds or reject products exceeding safe precision is not specified."
+                  ],
+                  "limitations": [
+                    "Only src/pricing.js was supplied; callers, tests, and configuration were not available, so integration behavior is unverified.",
+                    "No code was executed; conclusions are based solely on reading the supplied source text.",
+                    "The rounding at line 10 uses binary floating point; whether Math.round(unitPrice * quantity * 100)/100 matches the required money semantics for all permitted inputs depends on unstated rounding rules and cannot be confirmed here.",
+                    "Large finite unitPrice and quantity values can produce a product of Infinity, which the current checks would not catch; whether such inputs are reachable depends on undeclared caller constraints."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 244,
+                  "outputTokens": 293,
+                  "cacheReadTokens": 512,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    },
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Consumer expectations for currency rounding mode (e.g., half-up vs banker's rounding) and accepted unitPrice precision are not declared in the supplied input.; Whether callers rely on Number.MAX_SAFE_INTEGER bounds or reject products exceeding safe precision is not specified."
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 6824.271999999997,
+                  "snapshotMs": 4150.9928999999975,
+                  "executionMs": 2601.083899999998,
+                  "cacheMs": 48.81289999999717
+                },
+                "inputSnapshot": {
+                  "digest": "be3de09439ea7cbfb701d4840fac49e5de3b2a7af543878ca0153c730120883c",
+                  "files": [
+                    {
+                      "path": "src/pricing.js",
+                      "sha256": "2ab9c918b2067d9a508c6b444441f82fee0131aefdcfd74d67816ae3f122da6c",
+                      "bytes": 430
+                    }
+                  ],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "e486019b57bf5d20dd1deb1de90e96e1c705cd56c30fc0ab613eacaa9e425df0",
+                  "requestSha256": "589df91c1a2c90f9704ca70b7291f24d89dc277298119720158abebe583d5a00",
+                  "requestBytes": 3294,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              },
+              {
+                "taskId": "pagination",
+                "status": "executed",
+                "resultVersion": "5f9af207-efb1-4ded-ada5-bf77eeb579a7",
+                "reasons": [
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "The pagination helper validates its inputs but computes the slice end incorrectly: line 11 passes pageSize as the end index rather than offset + pageSize, so every page returns a slice of at most pageSize elements starting at the correct offset, and the result is truncated. This is a concrete correctness defect in the supplied file.",
+                  "findings": [
+                    {
+                      "title": "slice end index uses pageSize instead of offset + pageSize",
+                      "evidence": "return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [],
+                  "limitations": [
+                    "Only the single supplied file was reviewed; no tests or callers were available to confirm intended behavior beyond the documented one-based paging semantics.",
+                    "No execution was performed, so the defect is identified by static reading of the slice arguments."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 152,
+                  "outputTokens": 176,
+                  "cacheReadTokens": 640,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 6051.8125,
+                  "snapshotMs": 4089.4182000000073,
+                  "executionMs": 1886.2906999999977,
+                  "cacheMs": 55.89809999999852
+                },
+                "inputSnapshot": {
+                  "digest": "c21ecc2677089793a4b8d222d5e9ab5f9758760e5c2ff4b708ae7e16277282fe",
+                  "files": [
+                    {
+                      "path": "src/pagination.js",
+                      "sha256": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+                      "bytes": 449
+                    }
+                  ],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "8da12c27d7e548cf4bd52dd80f3e8dd13051ed65068005894aafcd267ba904e2",
+                  "requestSha256": "c824963664154563eacff3f531e47cb629188b240969137128a3a0e2e0834d13",
+                  "requestBytes": 3375,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              },
+              {
+                "taskId": "summary",
+                "status": "executed",
+                "resultVersion": "1faf2c18-e2f9-413f-bfa3-bf99b482ab9a",
+                "reasons": [
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream auth did not reuse its previous result",
+                    "sourceTaskId": "auth"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pricing did not reuse its previous result",
+                    "sourceTaskId": "pricing"
+                  },
+                  {
+                    "code": "upstream_reran",
+                    "message": "Upstream pagination did not reuse its previous result",
+                    "sourceTaskId": "pagination"
+                  },
+                  {
+                    "code": "model_revision_unknown",
+                    "message": "model_revision_unknown"
+                  },
+                  {
+                    "code": "cache_missing",
+                    "message": "cache missing"
+                  }
+                ],
+                "output": {
+                  "summary": "Two confirmed high-severity defects were found across the three upstream modules, plus one module with no confirmed defect. auth (src/auth.js:7) uses substring matching role.includes('admin'), so roles like 'superadmin', 'not_admin', or 'administrator' are granted account-management permission despite a documented exact-match contract. pagination (src/pagination.js:11) passes pageSize as the slice end index instead of offset + pageSize, truncating results. pricing (src/pricing.js) contains one function, calculateLineTotal, with no defect establishable from supplied text; floating-point rounding and overflow-to-Infinity concerns remain as limitations. No duplicate findings were present. Findings are preserved with original paths, lines, and evidence.",
+                  "findings": [
+                    {
+                      "title": "Substring role match grants permission to non-admin roles",
+                      "evidence": "return user.roles.some((role) => role.includes('admin'));",
+                      "severity": "high",
+                      "path": "src/auth.js",
+                      "line": 7
+                    },
+                    {
+                      "title": "slice end index uses pageSize instead of offset + pageSize",
+                      "evidence": "return items.slice(offset, pageSize);",
+                      "severity": "high",
+                      "path": "src/pagination.js",
+                      "line": 11
+                    }
+                  ],
+                  "unknownDependencies": [
+                    "Exact set and semantics of role strings issued by the identity provider/token source (auth)",
+                    "Whether role values can be attacker-controlled or user-selectable (auth)",
+                    "Consumer expectations for currency rounding mode (e.g., half-up vs banker's rounding) and accepted unitPrice precision are not declared in the supplied input (pricing)",
+                    "Whether callers rely on Number.MAX_SAFE_INTEGER bounds or reject products exceeding safe precision is not specified (pricing)"
+                  ],
+                  "limitations": [
+                    "Only the three supplied upstream module files and their stated results were available; no callers, tests, token schema, role-assignment logic, or configuration were provided, so end-to-end exploitability and integration behavior are unverified.",
+                    "No code was executed; all findings and the pricing no-defect conclusion are based on static reading of the supplied source text.",
+                    "auth review limited to src/auth.js; whether the substring behavior is exploitable end-to-end is unknown.",
+                    "pagination not tested; defect identified by static reading of slice arguments versus documented one-based paging semantics.",
+                    "pricing rounding uses binary floating point; compliance with required money semantics for all inputs depends on unstated rounding rules. Large finite unitPrice/quantity values may yield Infinity, which current checks would not catch; reachability depends on undeclared caller constraints."
+                  ]
+                },
+                "modelCalls": 1,
+                "usage": {
+                  "inputTokens": 913,
+                  "outputTokens": 526,
+                  "cacheReadTokens": 256,
+                  "cacheWriteTokens": null,
+                  "reasoningTokens": null,
+                  "totalTokens": null
+                },
+                "validation": [
+                  {
+                    "name": "output_schema",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "declared_source_or_upstream_evidence",
+                    "status": "passed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "reported_dependency_gaps",
+                    "status": "failed",
+                    "version": "structured-source-evidence-1",
+                    "note": "This does not prove semantic completeness of declared inputs."
+                  },
+                  {
+                    "name": "conclusion_correctness",
+                    "status": "not_performed",
+                    "version": "structured-source-evidence-1"
+                  },
+                  {
+                    "name": "request_has_no_tools",
+                    "status": "passed",
+                    "version": "frozen-text-no-tools-1"
+                  }
+                ],
+                "reuseEligibility": {
+                  "eligible": false,
+                  "reasons": [
+                    {
+                      "code": "model_revision_unknown",
+                      "message": "model_revision_unknown"
+                    },
+                    {
+                      "code": "unknown_dependencies",
+                      "message": "Exact set and semantics of role strings issued by the identity provider/token source (auth); Whether role values can be attacker-controlled or user-selectable (auth); Consumer expectations for currency rounding mode (e.g., half-up vs banker's rounding) and accepted unitPrice precision are not declared in the supplied input (pricing); Whether callers rely on Number.MAX_SAFE_INTEGER bounds or reject products exceeding safe precision is not specified (pricing)"
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream auth is not eligible for reuse",
+                      "sourceTaskId": "auth"
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream pricing is not eligible for reuse",
+                      "sourceTaskId": "pricing"
+                    },
+                    {
+                      "code": "upstream_not_reusable",
+                      "message": "Upstream pagination is not eligible for reuse",
+                      "sourceTaskId": "pagination"
+                    }
+                  ]
+                },
+                "currentSourceValid": true,
+                "timing": {
+                  "totalMs": 7572.198599999996,
+                  "snapshotMs": 4019.1024000000107,
+                  "executionMs": 3475.5867999999973,
+                  "cacheMs": 51.68429999999353
+                },
+                "inputSnapshot": {
+                  "digest": "602528fa36caac13a00a11101e5abddf2f27a93689f5e090871aac8d13486cbc",
+                  "files": [],
+                  "directories": []
+                },
+                "inputSnapshotOrigin": "matching-successful-cache-provenance",
+                "successfulProvenance": {
+                  "fingerprint": "0e93f3d7254a87668a25e0361d774f56dde3957d6c5978e40dab5bedb6f70223",
+                  "requestSha256": "d5cacf1478b35bd45b84e09b546226ae9d3f906c2e79be055f5d84ef79ab8356",
+                  "requestBytes": 5767,
+                  "finishReason": "[object Object]",
+                  "versions": {
+                    "core": "1",
+                    "implementationDigest": "cc7d0014064f2069068affc20827df7166aa288d9ebb093e66ee65a365045c79",
+                    "prompt": "scoped-review-2-numbered-lines",
+                    "toolPolicy": "frozen-text-no-tools-1",
+                    "validator": "structured-source-evidence-1"
+                  }
+                },
+                "error": null,
+                "rejectedOutputAudit": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "This supplementary protocol has no seed or unchanged stage. Both independent state directories begin empty, so it does not measure incremental reuse benefit.",
+    "The request presentation changed to expose explicit source line numbers. This single pair is reported separately from any prior baseline and does not replace failed baseline results.",
+    "Strict real-model executors may disable cache reuse when their model/revision identity cannot be pinned. Zero reuse in that mode is the intended conservative behavior.",
+    "The three-module synthetic repository and one pricing edit are a small mechanism experiment, not evidence of performance on arbitrary repositories.",
+    "Only declared task inputs and declared dependency edges determine invalidation. Undeclared semantic dependencies require a broader manifest or an explicit full run.",
+    "Finding scoring checks pre-fixed path/line/evidence references. Unmatched findings are retained for review and are not automatically false positives; the check is not a complete semantic adjudication.",
+    "Wall times are observed locally without warm-up correction, confidence intervals, or claims about production speed. The single supplementary pair runs full review first, so ordering effects are not controlled.",
+    "Usage is the executor/provider-reported usage only. Missing usage remains null; no cost or token estimates are invented.",
+    "A real-model executor must make at most one provider call per execute and perform no retries. The benchmark also caps non-fixture execute dispatches centrally."
+  ]
+}

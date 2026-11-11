@@ -1,0 +1,23 @@
+# Portable experiment evidence
+
+These files are allowlisted projections of the existing local synthetic experiments. The original reports and cache objects remain untouched and are excluded from Git. The projection removes credentials, absolute host paths, runtime installation locations, filesystem ownership, ACLs, security identifiers, full requests and source prompt bodies. Only hashes and selected successful provenance fields are exported from cache records; no cache object is published.
+
+| Evidence | Repetitions / stages | Actual model calls | Observed result |
+| --- | ---: | ---: | --- |
+| [Fixture](fixture.json) | 3 / 12 | 0 | 12 completed stages; 30 executed tasks and 18 reused tasks |
+| [Original real baseline](real-baseline.json) | 3 / 12 | 38 | 2 completed stages, 10 partial stages; 26 executed, 12 failed and 10 blocked tasks; no reuse |
+| [Separate numbered-line follow-up](real-numbered-followup.json) | 1 / 2 | 8 | 2 completed stages, 8 executed tasks; no seed or reuse |
+
+[index.json](index.json) records the files, original benchmark SHA-256 hashes and 46 actual real-model calls against the authorized limit of 48. Creating this export makes no model requests. The fixture evidence is the latest native Windows experiment, not the earlier fixture run.
+
+Each experiment preserves per-trial snapshot hashes and order, per-stage actual timings and usage, per-task statuses and reasons, validation results, findings, unknown dependencies, limitations, and fixed-reference scores. Stage reports also carry their original-byte SHA-256 hashes. Source paths identify the ignored local originals and are provenance labels, not downloadable evidence links.
+
+The fixture report recorded each task's consumed input hashes directly. The older real experiments did not include those fields in their run reports. For their 34 successful tasks, the export obtains file hashes and request hashes from matching local successful cache provenance, verified against the task ID, result version, output, and originating run. Failed and blocked tasks have `inputSnapshot: null`; per-trial declared source hashes remain available, but are not relabeled as task-consumption evidence. Cache/request fingerprints are opaque identifiers and do not reveal the removed permission or prompt bodies.
+
+All 12 baseline failures remain in the export. Their original response bodies were not retained by that implementation, so `rejectedOutputAudit.available` is false and the output remains null. Error details, attempted-call usage, partial validation, timing, and downstream blocking are preserved. No rejected response is reconstructed and the later follow-up does not replace the failed baseline. Future reports that contain rejected bodies can project their structured findings separately from successful output.
+
+Unknown token fields remain null. The fixture has null usage throughout. Real-model usage is provider-reported; cache-read tokens are provider prompt-cache usage and do not imply local result reuse. The model revision was unpinned, so strict real-model reuse was disabled. The single numbered-line follow-up starts with two independent empty states and cannot measure a seeded incremental benefit.
+
+Finding coverage matches fixed path, one-based line and trimmed evidence references. It does not prove semantic correctness or completeness. Unmatched findings are retained, without classifying them as false positives. Actual model summaries are reproduced as observations: source-evidence validation does not validate every explanation. For example, a follow-up summary describes pagination as repeated first-page content even though the cited `slice(offset, pageSize)` can yield empty later pages. `conclusion_correctness` is explicitly `not_performed`. The full follow-up has one unmatched rounding finding, while its incremental partner does not; their exact summary evidence differs.
+
+Reproduce the projection locally with `node tools/export-evidence.mjs` when the ignored source artifacts referenced by `docs/measurement-summary.json` are available. This reads only existing files and writes `docs/evidence/*.json`. The source bodies and caches are not needed to inspect the shipped evidence or run its consistency tests: `node --test test/evidence.test.js`.

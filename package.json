@@ -1,0 +1,24 @@
+{
+  "name": "dsh-incremental",
+  "version": "0.1.0",
+  "description": "Scoped read-only review tasks with auditable input snapshots and conservative incremental reuse for DeepSeek Harness.",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/hg1048596-pixel/dsh-incremental.git" },
+  "engines": { "node": ">=22.13.0", "dsh": "0.1.0-rc.6" },
+  "main": "./src/plugin.js",
+  "exports": { ".": "./src/plugin.js", "./core": "./src/engine.js", "./package.json": "./package.json" },
+  "bin": { "dsh-incremental": "./bin/dsh-incremental.js" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "demo": "node bin/dsh-incremental.js demo --output artifacts/demo",
+    "benchmark": "node bin/dsh-incremental.js benchmark --output artifacts/benchmark",
+    "doctor": "node bin/dsh-incremental.js doctor",
+    "verify:installation": "node tools/verify-installation.mjs",
+    "export:evidence": "node tools/export-evidence.mjs"
+  },
+  "files": ["src/", "bin/", "examples/", "docs/", "README.md", "LICENSE", "cordis.patch.yml"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "peerDependencies": { "@deepseek-ai/cordis": "^4.0.1", "@deepseek-ai/dsh-tools": "0.1.0-rc.6" },
+  "peerDependenciesMeta": { "@deepseek-ai/cordis": { "optional": true }, "@deepseek-ai/dsh-tools": { "optional": true } }
+}

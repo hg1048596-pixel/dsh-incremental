@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-11",
+  "timezone": "Asia/Shanghai",
+  "tests": {
+    "total": 91,
+    "passed": 91,
+    "failed": 0,
+    "skipped": 0
+  },
+  "fixture": {
+    "repetitions": 3,
+    "fullMeanMs": 29876.347933333323,
+    "incrementalMeanMs": 23621.639233333335,
+    "unchangedMeanMs": 16394.005866666663,
+    "modelCalls": 0,
+    "usage": null
+  },
+  "baseline": {
+    "calls": 38,
+    "runs": 12,
+    "completed": 2,
+    "partial": 10,
+    "usage": {
+      "inputTokens": 10006,
+      "outputTokens": 8459,
+      "cacheReadTokens": 9856,
+      "cacheWriteTokens": null,
+      "reasoningTokens": null,
+      "totalTokens": null
+    }
+  },
+  "followup": {
+    "calls": 8,
+    "protocol": {
+      "id": "supplemental-numbered-lines-pair-v1",
+      "description": "Single independent-state pair on the modified snapshot, using explicit source line numbers in requests.",
+      "supplementary": true,
+      "seededIncrementalState": false,
+      "relationshipToBaseline": "Separate follow-up protocol; do not pool with baseline measurements or infer seeded cache savings."
+    },
+    "stages": [
+      {
+        "stage": "modified-full",
+        "status": "completed",
+        "totals": {
+          "executed": 4,
+          "reused": 0,
+          "failed": 0,
+          "blocked": 0,
+          "cancelled": 0,
+          "modelCalls": 4,
+          "knownModelCalls": 4,
+          "unknownCallCounts": 0,
+          "usage": {
+            "inputTokens": 2947,
+            "outputTokens": 1313,
+            "cacheReadTokens": 384,
+            "cacheWriteTokens": null,
+            "reasoningTokens": null,
+            "totalTokens": null
+          },
+          "totalMs": 27399.9574,
+          "snapshotMs": 17240.935900000004,
+          "executionMs": 9635.590400000001,
+          "cacheMs": 209.3822999999984
+        },
+        "score": {
+          "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+          "summaryAvailable": true,
+          "summaryCurrentSourceValid": true,
+          "expectedCount": 2,
+          "observedUniqueCount": 3,
+          "matchedCount": 2,
+          "knownFindingCoverage": 1,
+          "matchedIds": [
+            "auth-substring-role",
+            "pagination-absolute-end"
+          ],
+          "missingIds": [],
+          "unmatchedFindings": [
+            {
+              "title": "Two-decimal rounding can yield incorrect cent totals due to binary floating-point representation",
+              "path": "src/pricing.js",
+              "line": 10,
+              "evidence": "return Math.round(unitPrice * quantity * 100) / 100;",
+              "severity": "low"
+            }
+          ]
+        }
+      },
+      {
+        "stage": "modified-incremental",
+        "status": "completed",
+        "totals": {
+          "executed": 4,
+          "reused": 0,
+          "failed": 0,
+          "blocked": 0,
+          "cancelled": 0,
+          "modelCalls": 4,
+          "knownModelCalls": 4,
+          "unknownCallCounts": 0,
+          "usage": {
+            "inputTokens": 1552,
+            "outputTokens": 1218,
+            "cacheReadTokens": 1792,
+            "cacheWriteTokens": null,
+            "reasoningTokens": null,
+            "totalTokens": null
+          },
+          "totalMs": 26945.897299999997,
+          "snapshotMs": 16389.063700000017,
+          "executionMs": 10051.085499999994,
+          "cacheMs": 208.31719999998677
+        },
+        "score": {
+          "method": "Exact normalized path, one-based line, and trimmed source-evidence equality; titles are not scored.",
+          "summaryAvailable": true,
+          "summaryCurrentSourceValid": true,
+          "expectedCount": 2,
+          "observedUniqueCount": 2,
+          "matchedCount": 2,
+          "knownFindingCoverage": 1,
+          "matchedIds": [
+            "auth-substring-role",
+            "pagination-absolute-end"
+          ],
+          "missingIds": [],
+          "unmatchedFindings": []
+        }
+      }
+    ]
+  },
+  "totalModelCalls": 46,
+  "authorizedMaxModelCalls": 48,
+  "knownUsage": {
+    "inputTokens": 14505,
+    "outputTokens": 10990,
+    "cacheReadTokens": 12032,
+    "cacheWriteTokens": null,
+    "reasoningTokens": null,
+    "totalTokens": null
+  },
+  "rawReports": {
+    "fixture": "docs/evidence/fixture.json",
+    "baseline": "docs/evidence/real-baseline.json",
+    "followup": "docs/evidence/real-numbered-followup.json"
+  },
+  "localRawReports": {
+    "fixture": "artifacts/benchmark-fixture-native/benchmark-2026-11-11T12-39-35-321Z-82d8f600/benchmark.json",
+    "baseline": "artifacts/benchmark-real/benchmark-2026-11-11T03-02-52-719Z-091dae6e/benchmark.json",
+    "followup": "artifacts/benchmark-real-numbered/supplemental-numbered-lines-pair-2026-11-11T03-12-40-167Z-7c7aa84c/benchmark.json"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "runtimeRoot": "C:\\path\\DeepSeek Harness\\resources\\dsh-app",
+  "provider": "deepseek-official",
+  "model": "deepseek-flash",
+  "connection": {
+    "adapter": "deepseek",
+    "baseURL": "https://api.deepseek.com",
+    "thinking": "disabled",
+    "reasoningEffort": "off"
+  },
+  "credentialEnv": "DEEPSEEK_API_KEY",
+  "allowRemote": false,
+  "approvedRepoRoot": "C:\\work\\sample",
+  "maxTokens": 4096,
+  "maxRequests": 48,
+  "timeoutMs": 120000
+}

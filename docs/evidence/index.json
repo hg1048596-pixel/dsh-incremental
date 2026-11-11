@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "dsh-incremental-evidence-index",
+  "experiments": [
+    {
+      "id": "fixture",
+      "path": "fixture.json",
+      "sourceSha256": "505d2391303bf57705eff29ddec17f4fa4aaaa27dfc3a2f82a65af8a513cef35",
+      "repetitions": 3,
+      "stages": 12,
+      "modelCalls": 0
+    },
+    {
+      "id": "baseline",
+      "path": "real-baseline.json",
+      "sourceSha256": "6a2b22366309d13381698d92c34eb95d5b4bf449d54345572f66660d93c6ccda",
+      "repetitions": 3,
+      "stages": 12,
+      "modelCalls": 38
+    },
+    {
+      "id": "followup",
+      "path": "real-numbered-followup.json",
+      "sourceSha256": "d601776e91287d37dec980028f54e8246dbb5baee9a1e3d62f4150685eba60b1",
+      "repetitions": 1,
+      "stages": 2,
+      "modelCalls": 8
+    }
+  ],
+  "totalRealModelCalls": 46,
+  "authorizedMaxModelCalls": 48
+}

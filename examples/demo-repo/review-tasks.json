@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "tasks": [
+    {
+      "id": "auth",
+      "description": "Review the account authorization module for concrete correctness and security defects. Cite source evidence for each finding.",
+      "inputs": { "files": ["src/auth.js"], "directories": [] },
+      "dependsOn": [],
+      "acceptance": ["Review the declared source file and return findings with exact source evidence."]
+    },
+    {
+      "id": "pricing",
+      "description": "Review the checkout pricing module for concrete correctness defects. Cite source evidence for each finding.",
+      "inputs": { "files": ["src/pricing.js"], "directories": [] },
+      "dependsOn": [],
+      "acceptance": ["Review the declared source file and return findings with exact source evidence."]
+    },
+    {
+      "id": "pagination",
+      "description": "Review the collection pagination module for concrete correctness defects. Cite source evidence for each finding.",
+      "inputs": { "files": ["src/pagination.js"], "directories": [] },
+      "dependsOn": [],
+      "acceptance": ["Review the declared source file and return findings with exact source evidence."]
+    },
+    {
+      "id": "summary",
+      "description": "Combine the upstream module review results into a concise report. Preserve source evidence, remove duplicate findings, and state review limitations.",
+      "inputs": { "files": [], "directories": [] },
+      "dependsOn": ["auth", "pricing", "pagination"],
+      "acceptance": ["Summarize the supplied upstream results and preserve their source evidence."]
+    }
+  ]
+}
