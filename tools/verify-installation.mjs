@@ -17,6 +17,8 @@ export const defaultRuntimeRoot = process.env.DSH_TEST_RUNTIME_ROOT ?? [
   process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Programs/DeepSeek Harness/resources/dsh-app'),
   path.join(homedir(), 'AppData/Local/Programs/DeepSeek Harness/resources/dsh-app'),
 ].find((candidate) => candidate && existsSync(path.join(candidate, 'node_modules/@deepseek-ai/dsh/package.json')));
+export const defaultNpmCli = process.env.DSH_TEST_NPM_CLI
+  ?? path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
 
 // Inherited by the existing DSH CLI, the existing pnpm, and the loader probe.
 // This is an additional process-local guard; --offline is also passed to pnpm.
@@ -52,11 +54,14 @@ function childEnvironment(paths) {
   }
   return {
     ...env, DSH_HOME: paths.home, DSH_TELEMETRY_DISABLED: '1',
+    HOME: paths.home, USERPROFILE: paths.home,
+    APPDATA: paths.config, LOCALAPPDATA: paths.data,
     TEMP: paths.temp, TMP: paths.temp, CI: '1', NO_UPDATE_NOTIFIER: '1',
     XDG_CACHE_HOME: paths.cache, XDG_CONFIG_HOME: paths.config,
     XDG_DATA_HOME: paths.data, XDG_STATE_HOME: paths.state,
     npm_config_userconfig: paths.userconfig, npm_config_globalconfig: paths.globalconfig,
     npm_config_registry: 'http://127.0.0.1:9', npm_config_update_notifier: 'false',
+    npm_config_ignore_scripts: 'true',
     NODE_DISABLE_COMPILE_CACHE: '1',
     NODE_OPTIONS: `--require ${JSON.stringify(paths.guard)}`,
     DSH_INSTALL_NETWORK_LOG: paths.networkLog,
@@ -76,16 +81,26 @@ async function execute(label, args, { base, env, cwd = repoRoot }) {
   }
 }
 
-/** Run only with an already-installed DSH rc.6, pnpm, npm and Node. */
-export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tarball, outputRoot = path.join(repoRoot, 'artifacts', 'installation-verification') } = {}) {
-  if (!runtimeRoot) throw new Error('Existing DSH rc.6 runtime not found; pass --runtime-root PATH');
+/** Probe public APIs of an explicitly selected, already-provisioned DSH runtime. */
+export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, expectedDshVersion, npmCli = defaultNpmCli, tarball, outputRoot = path.join(repoRoot, 'artifacts', 'installation-verification') } = {}) {
+  if (!runtimeRoot) throw new Error('Existing DSH runtime not found; pass --runtime-root PATH or DSH_TEST_RUNTIME_ROOT');
   runtimeRoot = await realpath(runtimeRoot);
   const require = createRequire(path.join(runtimeRoot, 'package.json'));
   const dshManifestPath = require.resolve('@deepseek-ai/dsh/package.json');
+  const runtimeModules = await realpath(path.join(runtimeRoot, 'node_modules'));
+  const withinRuntime = (filename) => {
+    const relative = path.relative(runtimeModules, filename);
+    assert.ok(relative && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative), 'DSH must resolve inside the selected runtime');
+  };
+  withinRuntime(await realpath(dshManifestPath));
   const dshManifest = JSON.parse(await readFile(dshManifestPath, 'utf8'));
-  assert.equal(dshManifest.version, '0.1.0-rc.6', 'This probe is explicitly scoped to DSH rc.6');
+  assert.equal(dshManifest.name, '@deepseek-ai/dsh');
+  assert.equal(typeof dshManifest.version, 'string', 'DSH must declare its version');
+  if (expectedDshVersion !== undefined) assert.equal(dshManifest.version, expectedDshVersion, 'Selected runtime version differs from the requested version');
   const cli = path.join(path.dirname(dshManifestPath), dshManifest.bin.dsh);
   await access(cli);
+  withinRuntime(await realpath(cli));
+  const sourceManifest = JSON.parse(await readFile(path.join(repoRoot, 'package.json'), 'utf8'));
   await mkdir(outputRoot, { recursive: true });
   const base = await mkdtemp(path.join(await realpath(outputRoot), 'run-'));
   const paths = Object.fromEntries(['home', 'temp', 'cache', 'config', 'data', 'state', 'store', 'pack'].map((name) => [name, path.join(base, name)]));
@@ -99,10 +114,11 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tar
     writeFile(paths.guard, denyNetwork), writeFile(paths.networkLog, ''),
   ]);
   const env = childEnvironment(paths);
-  const execution = { base, env };
+  // CLI environment loading must not inspect the checkout's optional .env file.
+  const execution = { base, env, cwd: base };
   let packFiles;
   if (tarball === undefined) {
-    const npmCli = path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+    npmCli = path.resolve(npmCli);
     await access(npmCli); // No corepack or other package-manager bootstrap.
     const packed = await execute('pack', [npmCli, 'pack', '--offline', '--ignore-scripts', '--json', '--cache', paths.cache, '--pack-destination', paths.pack, repoRoot], execution);
     const [manifest] = JSON.parse(packed.stdout);
@@ -111,32 +127,42 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tar
   }
   tarball = await realpath(tarball);
   const profileName = 'incremental-install-smoke';
-  // rc.6 forwards pnpm with shell:true on Windows. Keep a path containing
-  // spaces as one cmd.exe argument; no other shell text is accepted here.
+  // rc.6 forwards through cmd.exe; current DSH uses execa's argv handling.
+  // Quotes embedded for rc.6 would become literal path characters on current DSH.
+  const legacyWindowsShell = process.platform === 'win32' && dshManifest.version === '0.1.0-rc.6';
   if ([tarball, paths.store, paths.cache, paths.state].some((value) => /["%!\r\n]/u.test(value))) throw new Error('Installation path has unsupported shell characters');
-  const tarballArgument = process.platform === 'win32' ? `"${tarball}"` : tarball;
+  const packageManagerPath = (filename) => legacyWindowsShell ? `"${filename}"` : filename;
   const pnpmArgs = [
-    'add', tarballArgument, '--offline', '--ignore-scripts', '--reporter=append-only',
+    'add', packageManagerPath(tarball), '--offline', '--ignore-scripts', '--reporter=append-only',
     '--config.auto-install-peers=false', '--config.update-notifier=false',
     '--config.manage-package-manager-versions=false', '--config.package-manager-strict=false',
     '--registry=http://127.0.0.1:9',
-    `--store-dir=${process.platform === 'win32' ? `"${paths.store}"` : paths.store}`,
-    `--cache-dir=${process.platform === 'win32' ? `"${paths.cache}"` : paths.cache}`,
-    `--config.state-dir=${process.platform === 'win32' ? `"${paths.state}"` : paths.state}`,
+    `--store-dir=${packageManagerPath(paths.store)}`,
+    `--cache-dir=${packageManagerPath(paths.cache)}`,
+    `--config.state-dir=${packageManagerPath(paths.state)}`,
   ];
-  await writeFile(path.join(base, 'command.json'), JSON.stringify({ node: process.execPath, cli, args: ['plugin', '--profile', profileName, ...pnpmArgs] }, null, 2));
+  await writeFile(path.join(base, 'command.json'), JSON.stringify({ node: process.execPath, runtimeRoot, dshVersion: dshManifest.version, cli, args: ['plugin', '--profile', profileName, ...pnpmArgs] }, null, 2));
   await execute('install', [cli, 'plugin', '--profile', profileName, ...pnpmArgs], execution);
   const profileDir = path.join(paths.home, 'profiles', profileName);
   const profile = JSON.parse(await readFile(path.join(profileDir, 'package.json'), 'utf8'));
   assert.ok(profile.dependencies['dsh-incremental']);
-  assert.deepEqual(profile.dsh.profile.bundles, ['@deepseek-ai/dsh-base', 'dsh-incremental']);
+  assert.ok(profile.dsh.profile.bundles.includes('dsh-incremental'));
   const packageDir = path.join(profileDir, 'node_modules', 'dsh-incremental');
   assert.equal((await lstat(packageDir)).isSymbolicLink(), false, 'pnpm must materialize the tarball rather than link the checkout');
   assert.notEqual(await realpath(packageDir), await realpath(repoRoot));
   const installed = JSON.parse(await readFile(path.join(packageDir, 'package.json'), 'utf8'));
   assert.equal(installed.name, 'dsh-incremental');
-  assert.equal(installed.version, '0.1.0');
+  assert.equal(typeof installed.version, 'string');
+  if (packFiles) assert.equal(installed.version, sourceManifest.version);
   assert.equal(installed.dsh.bundle.patch, './cordis.patch.yml');
+  assert.equal(typeof installed.icon, 'string', 'The installed package must declare its icon');
+  const iconPath = await realpath(path.resolve(packageDir, installed.icon));
+  const iconRelative = path.relative(await realpath(packageDir), iconPath);
+  assert.ok(iconRelative && iconRelative !== '..' && !iconRelative.startsWith(`..${path.sep}`) && !path.isAbsolute(iconRelative), 'The installed icon must remain inside its package');
+  const profileRequire = createRequire(path.join(profileDir, 'package.json'));
+  assert.equal(await realpath(profileRequire.resolve('dsh-incremental/icon')), iconPath);
+  const iconBytes = await readFile(iconPath);
+  assert.ok(iconBytes.length > 0);
   const modulesMetadata = await readFile(path.join(profileDir, 'node_modules', '.modules.yaml'), 'utf8');
   const packageManager = /["']?packageManager["']?:\s*["']?([^\s"',]+)/u.exec(modulesMetadata)?.[1];
   assert.match(packageManager ?? '', /^pnpm@/u);
@@ -146,12 +172,12 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tar
   // This parses the complete default+plugin profile without booting it.
   const dump = await execute('dump-config', [cli, '--profile', profileName, '--dump-config'], execution);
   assert.match(dump.stdout, /name: dsh-incremental/);
-  // Activate only the installed plugin row against public rc.6 tool services;
+  // Activate only the installed plugin row against public runtime tool services;
   // no desktop, session or model provider is booted.
   const loaderProbe = `
     import assert from 'node:assert/strict';
     import { createRequire } from 'node:module';
-    import { readFile, access } from 'node:fs/promises';
+    import { readFile, access, realpath } from 'node:fs/promises';
     import path from 'node:path';
     import { pathToFileURL } from 'node:url';
     const runtimeRoot = ${JSON.stringify(runtimeRoot)};
@@ -159,12 +185,28 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tar
     const home = ${JSON.stringify(paths.home)};
     const probeRoot = ${JSON.stringify(base)};
     const require = createRequire(path.join(runtimeRoot, 'package.json'));
-    const fromRuntime = (name) => import(pathToFileURL(require.resolve(name)).href);
+    const fromRuntime = async (name) => {
+      const entry = require.resolve(name);
+      const resolved = await realpath(entry);
+      const relative = path.relative(${JSON.stringify(runtimeModules)}, resolved);
+      assert.ok(relative && relative !== '..' && !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative), name + ' resolved outside selected runtime');
+      return import(pathToFileURL(entry).href);
+    };
     const [{ Context }, { Loader }, boot, tools, system] = await Promise.all([
       fromRuntime('@deepseek-ai/cordis'), fromRuntime('@deepseek-ai/cordis-plugin-loader'),
       fromRuntime('@deepseek-ai/dsh-app-boot'), fromRuntime('@deepseek-ai/dsh-tools'), fromRuntime('@deepseek-ai/dsh-system-prompt'),
     ]);
+    const defaultBundles = boot.DEFAULT_PROFILE_BUNDLES
+      ?? (await fromRuntime('@deepseek-ai/dsh-official-bundles')).DEFAULT_PROFILE_BUNDLES;
     const loaded = boot.loadProfile('installation-smoke', ${JSON.stringify(profileName)}, path.join(runtimeRoot, 'package.json'), home);
+    const manifest = JSON.parse(await readFile(path.join(profileDir, 'package.json'), 'utf8'));
+    assert.deepEqual(manifest.dsh.profile.bundles, [...defaultBundles, 'dsh-incremental']);
+    const metadata = typeof boot.readPluginMeta === 'function'
+      ? boot.readPluginMeta('dsh-incremental', pathToFileURL(profileDir).href + '/') : undefined;
+    if (typeof boot.readPluginMeta === 'function') {
+      assert.ok(metadata && !metadata.error, metadata?.error ?? 'Plugin metadata was not resolved');
+      assert.equal(metadata.icon, 'data:image/svg+xml;base64,' + (await readFile(${JSON.stringify(iconPath)})).toString('base64'));
+    }
     const layer = loaded.layers.find(({ packageName }) => packageName === 'dsh-incremental');
     assert.equal(layer.packageDir, ${JSON.stringify(packageDir)});
     const entries = boot.composeEntries([layer.patches, [{ id: 'incremental', config: {
@@ -180,22 +222,28 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tar
       await root.plugin(Loader, { baseUrl: pathToFileURL(profileDir).href + '/' });
       for (const entry of entries) await root.loader.create(entry);
       await root.loader.await();
-      await boot.assertEntriesActivated(root, 'installation-smoke');
+      const audit = boot.assertEntriesActivated ?? boot.auditStartupEntries;
+      assert.equal(typeof audit, 'function', 'Runtime must expose a public startup audit');
+      const activationWarnings = [];
+      await audit(root, 'installation-smoke', (warning) => activationWarnings.push(warning));
+      assert.deepEqual(activationWarnings, []);
       const registered = root.tools.schemas().map(({ name }) => name).sort();
       assert.deepEqual(registered, ['incremental_plan', 'incremental_report', 'incremental_run']);
       await root.loader.remove('incremental');
       assert.equal(root.tools.schemas().length, 0);
       await assert.rejects(access(path.join(probeRoot, 'not-created')), { code: 'ENOENT' });
-      process.stdout.write(JSON.stringify({ registered, unloaded: true, profileLayers: loaded.layers.length }));
+      process.stdout.write(JSON.stringify({ registered, unloaded: true, profileLayers: loaded.layers.length, defaultBundles,
+        iconMetadataReader: typeof boot.readPluginMeta === 'function' ? 'readPluginMeta' : 'unavailable', iconMetadataResolved: Boolean(metadata?.icon) }));
     } finally { await root.fiber.dispose(); }
   `;
   const activation = JSON.parse((await execute('activate', ['--input-type=module', '-e', loaderProbe], execution)).stdout);
   const networkAttempts = (await readFile(paths.networkLog, 'utf8')).trim().split('\n').filter(Boolean).length;
   assert.equal(networkAttempts, 0, 'Any attempted network use fails this probe');
   const result = {
-    status: 'passed', nodeVersion: process.version, dshVersion: dshManifest.version, packageManager,
+    status: 'passed', nodeVersion: process.version, runtimeRoot, dshVersion: dshManifest.version, packageManager,
     tarball, tarballSha256: sha256(await readFile(tarball)), profileDir, packageDir,
     packageVersion: installed.version, bundles: profile.dsh.profile.bundles,
+    icon: installed.icon, iconSha256: sha256(iconBytes), iconExportResolved: true,
     packedFilesCompared: packFiles?.length ?? null, lifecycleScripts: 'disabled',
     packageManagerMode: 'offline', providerCredentialsSupplied: false, networkAttempts,
     ...activation, evidenceDirectory: base,
@@ -207,9 +255,9 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, tar
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const options = {};
   for (let index = 2; index < process.argv.length; index += 2) {
-    const key = { '--runtime-root': 'runtimeRoot', '--tarball': 'tarball', '--output': 'outputRoot' }[process.argv[index]];
-    if (!key || process.argv[index + 1] === undefined) throw new Error('Usage: node tools/verify-installation.mjs [--runtime-root PATH] [--tarball PATH] [--output PATH]');
-    options[key] = path.resolve(process.argv[index + 1]);
+    const key = { '--runtime-root': 'runtimeRoot', '--expected-dsh-version': 'expectedDshVersion', '--npm-cli': 'npmCli', '--tarball': 'tarball', '--output': 'outputRoot' }[process.argv[index]];
+    if (!key || process.argv[index + 1] === undefined) throw new Error('Usage: node tools/verify-installation.mjs [--runtime-root PATH] [--expected-dsh-version VERSION] [--npm-cli PATH] [--tarball PATH] [--output PATH]');
+    options[key] = key === 'expectedDshVersion' ? process.argv[index + 1] : path.resolve(process.argv[index + 1]);
   }
   console.log(JSON.stringify(await verifyInstallation(options), null, 2));
 }

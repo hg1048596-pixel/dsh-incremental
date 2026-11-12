@@ -3,6 +3,7 @@ import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
+import { deepSeekTransport, minimumDshNodeVersion, supportsDshNode } from './dsh-runtime.js';
 
 const MAX_TOKENS = 4096;
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
@@ -80,6 +81,11 @@ export function validateDshConfiguration(input) { return configSnapshot(input); 
 export async function loadDshModules(runtimeRoot) {
   const root = await realpath(runtimeRoot);
   const require = createRequire(path.join(root, 'package.json'));
+  // Read the public manifest before importing code that requires a newer Node.
+  const llmMetadata = JSON.parse(await readFile(require.resolve('@deepseek-ai/dsh-llm/package.json'), 'utf8'));
+  if (!supportsDshNode(llmMetadata.version)) {
+    throw Object.assign(new Error(`This DSH runtime requires Node >=${minimumDshNodeVersion(llmMetadata.version)}`), { code: 'UNSUPPORTED_NODE_VERSION' });
+  }
   const names = ['@deepseek-ai/cordis', '@deepseek-ai/dsh-llm', '@deepseek-ai/dsh-credentials',
     '@deepseek-ai/dsh-llm-deepseek', '@deepseek-ai/dsh-llm-pi-ai'];
   const entries = await Promise.all(names.map(async (name) => {
@@ -149,11 +155,11 @@ async function readModelMetadata(response) {
   }
 }
 
-async function observeAdvertisedModel({ config, signal, resolveCredential, onRequest }) {
+async function observeAdvertisedModel({ config, modelListingURL, signal, resolveCredential, onRequest }) {
   const credential = await resolveCredential(config.credentialEnv);
   if (signal.aborted) throw outputError('ABORTED');
   onRequest();
-  const response = await fetch(`${config.connection.baseURL}/models`, {
+  const response = await fetch(modelListingURL, {
     method: 'GET', redirect: 'error', signal,
     headers: { authorization: `Bearer ${credential}`, accept: 'application/json' },
   });
@@ -185,7 +191,7 @@ export function validateReviewOutput(value) {
 function normalizedUsage(value) {
   if (!value || typeof value !== 'object') throw outputError('INVALID_USAGE');
   const usage = {};
-  for (const key of ['inputTokens', 'outputTokens', 'cacheReadTokens', 'cacheWriteTokens', 'reasoningTokens']) {
+  for (const key of ['inputTokens', 'outputTokens', 'cacheReadTokens', 'cacheWriteTokens', 'reasoningTokens', 'totalTokens']) {
     const number = value[key];
     if (number !== undefined && (!Number.isSafeInteger(number) || number < 0)) throw outputError('INVALID_USAGE');
     usage[key] = number ?? null;
@@ -215,6 +221,10 @@ export async function createDshExecutor(input, dependencies = {}) {
   const { Context } = modules['@deepseek-ai/cordis'].exports;
   const llmModule = modules['@deepseek-ai/dsh-llm'].exports;
   const { CredentialProvider } = modules['@deepseek-ai/dsh-credentials'].exports;
+  const directModule = modules['@deepseek-ai/dsh-llm-deepseek'].exports;
+  const transport = config.connection.adapter === 'deepseek' ? deepSeekTransport(directModule) : 'pi-ai';
+  const modelListingURL = transport === 'deepseek-messages'
+    ? directModule.modelListingURL(config.connection.baseURL) : `${config.connection.baseURL}/models`;
   const root = new Context();
   const budget = input.budget;
   if (budget && (!Number.isSafeInteger(budget.used) || budget.used < 0 || !Number.isSafeInteger(budget.max) || budget.max < 1 || budget.max > 48 || budget.used > budget.max)) {
@@ -242,7 +252,7 @@ export async function createDshExecutor(input, dependencies = {}) {
       const adapter = await dependencies.createAdapter({ config, modules, resolveCredential });
       root.llm.registerAdapter([config.provider], adapter);
     } else if (config.connection.adapter === 'deepseek') {
-      const { DeepSeekAdapter, resolveAdapterOptions } = modules['@deepseek-ai/dsh-llm-deepseek'].exports;
+      const { DeepSeekAdapter, resolveAdapterOptions } = directModule;
       const connection = freeze(resolveAdapterOptions({
         apiKeyEnv: config.credentialEnv, baseURL: config.connection.baseURL,
         thinking: config.connection.thinking, reasoningEffort: config.connection.reasoningEffort,
@@ -252,7 +262,11 @@ export async function createDshExecutor(input, dependencies = {}) {
       const userId = randomUUID();
       root.llm.registerAdapter([config.provider], new DeepSeekAdapter({
         options: () => connection,
-        resolveApiKey: (snapshot) => resolveCredential(snapshot.apiKeyEnv),
+        ...(transport === 'deepseek-messages' ? {
+          resolveAuth: async () => ({ headers: { authorization: `Bearer ${await resolveCredential(config.credentialEnv)}` } }),
+          // The private reviewer has no host extension registry or request hooks.
+          prepareExtensions: async () => ({ fields: {}, accept: async () => {} }),
+        } : { resolveApiKey: (snapshot) => resolveCredential(snapshot.apiKeyEnv) }),
         resolveUserId: () => userId,
       }));
     } else {
@@ -277,9 +291,10 @@ export async function createDshExecutor(input, dependencies = {}) {
       assurance: config.reusePolicy.mode === 'visible-model' ? 'configured-visible-route' : 'config_only',
       ...(config.reusePolicy.mode === 'visible-model' ? { risks: VISIBLE_REUSE_RISKS } : {}),
     },
-    adapter: config.connection.adapter, connection: config.connection, maxTokens: config.maxTokens, timeoutMs: config.timeoutMs,
+    adapter: config.connection.adapter, transport, connection: config.connection, maxTokens: config.maxTokens, timeoutMs: config.timeoutMs,
     isolation: 'independent_cordis_root', protocol: 'structured_review_v1',
-    runnerHash: createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex'),
+    runnerHash: createHash('sha256').update(await readFile(new URL(import.meta.url)))
+      .update('\0dsh-runtime.js\0').update(await readFile(new URL('./dsh-runtime.js', import.meta.url))).digest('hex'),
     runtimeHashes: Object.fromEntries(await Promise.all([
       '@deepseek-ai/dsh-llm', `@deepseek-ai/dsh-llm-${config.connection.adapter === 'deepseek' ? 'deepseek' : 'pi-ai'}`,
     ].map(async (name) => [name, createHash('sha256').update(await readFile(modules[name].entry)).digest('hex')]))),
@@ -328,7 +343,7 @@ export async function createDshExecutor(input, dependencies = {}) {
           requestCount = 1;
           advertisedModel = selectedAdvertisedModel(await dependencies.observeModel({ config, signal: controller.signal, resolveCredential }), config.model);
         } else advertisedModel = await observeAdvertisedModel({
-          config, signal: controller.signal, resolveCredential, onRequest: () => { requestCount++; },
+          config, modelListingURL, signal: controller.signal, resolveCredential, onRequest: () => { requestCount++; },
         });
         if (controller.signal.aborted) throw outputError('ABORTED');
         if (disposed) throw outputError('EXECUTOR_DISPOSED');

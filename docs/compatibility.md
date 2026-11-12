@@ -1,158 +1,92 @@
-# Installed DSH compatibility
+# DSH 兼容性与适配记录
 
-The compatibility target is the existing Windows DeepSeek Harness installation
-whose `@deepseek-ai/dsh-*` packages report `0.1.0-rc.6`, using Node 22 or newer.
-The separately reviewed official 0.2.2 source is reference material. It is not
-installed, substituted for the desktop runtime, or treated as proof about rc.6.
-No DSH core files need changes; the plugin uses the public packages already
-shipped with that runtime.
+[使用指南](usage.md) · [缓存规则](cache-rules.md) · [返回首页](../README.md)
 
-The local core now passes a real DeepSeek API acceptance chain through this
-installed runtime: four initial task executions, four unchanged result reuses
-with zero completion calls, then two executions and two reuses after changing
-only pricing. The route is `deepseek-flash`, `visible-model`, with a 24-hour TTL.
-Each stage also makes one model-catalog GET. See the [core results](core-functionality.md)
-and [portable acceptance evidence](evidence/core-acceptance.json), which retain the
-earlier unsuccessful attempt. This checks the core engine with the real adapter
-on one small example; it is not installed desktop UI end-to-end validation,
-general performance evidence, or proof of review correctness.
+## 支持版本
 
-The explicit `runtimeRoot` identifies the existing `dsh-app` directory containing
-`package.json` and `node_modules`. Resolution uses `createRequire` from that
-directory and imports package roots exported by their public `exports` map. It
-never imports private adapter, registry, session, or runtime files as APIs.
+| DSH | 验证用 Node.js | DeepSeek 协议 | 集成检查 |
+| --- | --- | --- | --- |
+| 0.2.2-rc.2 | 24.22.3 | Messages API | 37 项通过；本地插件包安装、激活和卸载通过 |
+| 0.1.0-rc.6 | 22.23.2 | Chat Completions | 37 项通过；保留旧版调用路径 |
 
-## Tool contract
+2026-11-12 核对官方仓库和 npm 发布包，最新发布标签为
+[`dsh-v0.2.2-rc.2`](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.2-rc.2)。
+该版本要求 Node.js >=24.9.0；插件会在导入新版 DSH 包前检查 Node 版本。
+验证使用独立的官方运行环境，没有修改或升级本机已有 DSH。
 
-The rc.6 `@deepseek-ai/dsh-tools` root exports `defineTool`. Every registered tool
-declares `output.schema` and `output.render`. Its body returns a canonical JSON
-value; the renderer creates text content from that validated value. Returning
-`{content: [...]}` as though it were the canonical registry result is incorrect.
+## 新版接入变化
 
-The plugin registers `incremental_plan`, `incremental_run`, and
-`incremental_report`. The host fixes repository, manifest, state location,
-provider, model, credential reference, endpoint, and remote authorization. Tool
-arguments cannot change those values. Planning never generates a model response.
-With explicit `visible-model` reuse, both planning and execution resolve only the
-approved credential reference to query the configured `/models` endpoint.
-Strict mode does not query that metadata endpoint.
+- **DeepSeek 调用**：通过公开导出识别 Messages 与 Chat Completions 两种适配器。新版提供固定路线的 `resolveAuth`，并显式返回空 API 扩展，独立 Cordis root 不继承宿主中间件。
+- **地址与模型目录**：新版示例使用 `https://api.deepseek.com/anthropic` 和 `deepseek-v4-flash`。模型目录地址由官方 `modelListingURL` 计算，查询来源为同一已授权端点的 `/models`。
+- **工具执行**：继续使用 `defineTool`、`output.schema`、`output.render`，返回规范 JSON。新版批量工具执行由 DSH 自己的 native executor 负责。
+- **权限来源**：记录宿主公开 sandbox/approval 事实，包括新版的 `additionalWritableRoots`；授权信息未知或无效时，结果不进入复用路径。
+- **生命周期**：适配新版 `auditStartupEntries`、官方默认 bundle 清单及 CLI 参数转发；保持取消、卸载和前台运行。
+- **图标**：通过官方支持的 package `icon` 字段及 `./icon` 资源导出方形 SVG。已用新版 `readPluginMeta` 验证安装包中的图标数据。
+- **缓存身份**：记录传输协议、适配器版本、入口摘要及本地执行器和兼容辅助代码摘要，避免升级后复用旧执行路径的结果。
 
-An unconfigured bundle stays dormant, logs a configuration warning, and registers
-no tools. A partially configured bundle fails with a specific configuration error.
-Report lookup fails cleanly when the requested run does not exist.
+独立执行器只桥接指定凭据引用，传入冻结的文本和空工具列表，不运行目标仓库代码。
+输入控制、失败恢复、TTL 和严格默认策略详见[缓存规则](cache-rules.md)。
 
-For each plan or run the plugin snapshots the public
-`sandboxPolicy.resolve({session: exec.agent?.session})` facts and the approval
-service's public `overrideOf(session)` and configured default. Those facts enter
-the recorded security policy; unavailable or invalid policy information is marked
-unknown, and unknown sandbox/approval facts make results ineligible for reuse.
-Effective policy facts and session identity enter the cache key. rc.6's public
-SandboxExecutionPolicy identifies per-session backend security state, so a new
-session is conservatively treated as a new permission boundary.
-Reading a host policy does not grant remote access: authorization still
-comes only from the fixed host configuration. This records the host's file policy;
-it does not claim that the independent model executor supplies process confinement.
+## 配置迁移
 
-Runs are foreground operations and forward cancellation. The optional jobs
-controller was evaluated: rc.6 completion delivery belongs to the existing
-`dsh-tool-jobs` composition, whose default can wake the owning model. Its public
-per-job API does not guarantee quiet completion. Background mode therefore fails
-explicitly; this plugin neither mounts a controller nor creates follow-up turns.
-Disposal first prevents new plan/run operations, cancels active operations, and
-waits for operations that were still reading their manifest before releasing the
-private executor. Executor disposal also rechecks its state after asynchronous
-repository validation, so a late validation cannot dispatch against a disposed root.
+最新版配置模板见 [dsh-config.example.json](../examples/dsh-config.example.json)：
 
-## Isolated model executor
+```json
+{
+  "model": "deepseek-v4-flash",
+  "connection": {
+    "adapter": "deepseek",
+    "baseURL": "https://api.deepseek.com/anthropic",
+    "thinking": "disabled",
+    "reasoningEffort": "off"
+  }
+}
+```
 
-Each executor creates `new Context()` and mounts `LlmRuntime` on that independent
-root. It does not inherit the host's LLM waterfalls, retry listeners, conversation
-history, tools, workspace instructions, settings, or credential discovery. There
-is exactly one frozen provider route. The direct DeepSeek route constructs the
-public `DeepSeekAdapter` with public `resolveAdapterOptions`. The pi-ai route
-uses that package's public plugin entry to construct `PiAiAdapter`, with exactly
-one fixed profile and a restricted credential service. No retry plugin is mounted
-and the profile's retry policy is capped at zero retries.
+旧 rc.6 仍使用原来的 Chat Completions 地址，例如 `https://api.deepseek.com`；
+模型名称按自己的已配置路线设置。不要把 Messages 地址套用到旧适配器。
+完整配置、宿主 patch 和任务清单见[使用指南](usage.md)。
 
-The request includes only the engine's frozen system prompt and user text, an
-empty tools list, the configured model, and an output cap at most 4096 tokens.
-The executor also enforces a timeout and a maximum of 48 requests, including a
-shared mutable budget when supplied by the host. A dispatch consumes one call
-even if the provider later fails. There is no automatic retry.
-Model-catalog GET attempts are counted separately from completion calls and
-recorded in `identityObservation.requestCount`.
+## 实际验证
 
-The reader accepts text and reasoning stream blocks, discards reasoning, and
-parses visible output strictly as JSON. It rejects tool calls, unknown blocks,
-malformed streams, non-stop finishes, truncation, missing finishes, and invalid
-review schemas. A failed response is not repaired or executed. Usage is recorded
-only when actually supplied; unknown usage is null. Failure errors retain known
-usage and the dispatch count without copying raw provider error payloads.
-Known terminal finish kinds map to fixed error codes; provider-defined finish
-labels and thrown adapter error codes are not copied into reports.
+集成测试加载两个版本的真实公开包，拦截传输并提供固定离线响应，覆盖：
 
-The endpoint must be explicit. HTTPS is required except for loopback HTTP. The
-approved repository root and `allowRemote: true` are checked before dispatch.
-Credentials come only from the named environment variable or the host's explicit
-resolver for that same reference. No `credentials-local` directories are scanned;
-no credential value is logged, hashed into identity, or written into reports.
-Offline wire tests intercept the official DeepSeek and pi-ai OpenAI-completions
-adapters before transport and verify the configured URL, named credential,
-empty tools, supplied messages, usage mapping and output cap. This verifies
-request construction for those routes; the installed official adapter and its
-transport remain trusted for redirects and provider-specific protocol behavior.
+- 真实适配器的成功响应、usage、错误 JSON、输出截断和 HTTP 错误；
+- 空工具请求、拒绝工具调用、取消与流清理；
+- 独立 root、凭据引用限制、模型元数据、TTL 和来源记录；
+- 工具注册、原生执行、profile 合成、启动检查和卸载；
+- Node 版本不满足时在导入新版运行时代码前退出。
 
-## Model identity and reuse
+安装检查通过公开 `dsh plugin` 命令将本地 tgz 安装到临时 profile，
+逐文件核对打包字节，检查三项工具与图标，再卸载工具。
+安装阶段使用已有 pnpm、禁用生命周期脚本和网络；没有提供供应商凭据。
+本次新版适配没有消耗真实模型推理请求。此前真实 API 的功能验收独立保留在
+[核心功能记录](core-functionality.md)，不作为新版模型效果测试。
 
-The current adapter metadata exposes the configured provider/model identifier,
-not a provider-attested immutable model revision. Identity records
-`immutableRevision: null`. Strict mode records `assurance: "config_only"`; cross-run reuse
-is disabled with reason `model_revision_unknown`, even when inputs are unchanged.
-An environment variable cannot manufacture an immutable revision.
+复现完整测试：
 
-After explicit user approval of the weaker policy, `reusePolicy.mode:
-visible-model` supports real result reuse through the direct DeepSeek adapter.
-Each engine plan/run calls `prepareRun()` and receives a frozen run-specific view.
-A controlled authenticated `/models` GET contributes only the selected entry's
-id, optional name and owner to identity. Query time and unrelated catalog entries
-do not invalidate results. Missing/failed observations disable reuse. Base
-executors remain ineligible until preparation succeeds.
+```powershell
+$env:DSH_TEST_RUNTIME_ROOT = 'C:\path\to\dsh-runtime'
+$env:DSH_TEST_NPM_CLI = 'C:\path\to\node_modules\npm\bin\npm-cli.js'
+npm test
+```
 
-This observation describes the advertised route; rc.6's public adapter discards
-wire response model/fingerprint metadata, so it is not a completion revision
-attestation. `immutableRevision` remains null and both uncertainty risks are
-reported; assurance is `configured-visible-route`. The user-authorized policy accepts same-ID backend changes that may
-remain undetected. A mandatory maximum age (24h by default, at most 30 days) starts
-at result creation, is not extended by hits, and expiry forces execution. `--full`
-also forces execution. The default remains strict.
+独立安装检查：
 
-The real acceptance chain preserves every version on the unchanged run and
-preserves only auth/pagination versions after the pricing edit. The first fresh
-attempt did not pass reuse acceptance because auth reported a dependency gap
-and summary inherited it. Prompt v3 then clarified that missing facts required
-for a scoped conclusion belong in `unknownDependencies`, while unreviewed wider
-behavior belongs in `limitations`; genuine missing dependencies must still be
-reported. New real outputs in a fresh repository/state passed the full chain.
-The earlier outputs were retained, not edited to enable reuse.
+```powershell
+node tools/verify-installation.mjs --runtime-root C:\path\to\dsh-runtime --expected-dsh-version 0.2.2-rc.2
+```
 
-Endpoint, visible identity, policy and fixed execution controls belong to the
-cache key; repository authorization and live budget counters are checked
-separately. No DSH core interception or global transport patch is used.
+运行目录须包含所选版本的 `package.json`、公开依赖和已有 pnpm。
+若使用不带 npm 的独立 Node 可执行文件，另传 `--npm-cli PATH`。
+CI 的 `DSH 0.2.2-rc.2 integration` 作业从官方 npm 准备隔离运行环境，
+禁用安装脚本后执行完整测试。
 
-`doctor` reads installed versions, validates required public exports, and hashes
-the resolved entry files. It does not boot DSH, resolve credentials, call a model,
-or alter the installation. Hashes permit later comparison; without a trusted
-baseline it reports modification status as unknown and does not claim that core
-files are pristine. Installed-runtime smoke tests use a fake adapter and the
-actual rc.6 LLM/tool services; they make no provider network calls.
-An executor-to-engine integration test completes two offline runs through the
-installed LLM service and confirms both execute because the model revision is
-unknown. A separate temporary-profile smoke test uses the public
-`loadProfile`, `composeEntries`, and `Loader` APIs to resolve this package's
-declared bundle patch, activate all three configured tools, and unload them.
-The fixture links the local package into its own temporary profile and blocks
-`fetch`; it does not run `dsh plugin add`, pnpm, an installer, or any existing
-user profile. The subsequent [offline installation verification](installation-verification.md)
-also exercised the public rc.6 CLI and existing pnpm with the local tarball in an
-isolated profile, followed by configuration composition and activation from the
-installed copy; no provider credentials or network requests were used.
+## 官方依据
+
+- [发布与运行方式](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.2/README.md)
+- [Node 与包管理器要求](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.2/package.json)
+- [工具接口](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.2/packages/core/tools/README.md)
+- [LLM 服务](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.2/packages/llm/llm/README.md)
+- [DeepSeek 适配器](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.2/packages/llm/llm-deepseek/README.md)
+- [插件元数据与图标](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.2/packages/util/package-manifest/README.md)

@@ -21,12 +21,16 @@ export async function resolveHostSecurityPolicy(ctx, config, exec = {}) {
     const service = ctx.get?.('sandboxPolicy');
     if (typeof service?.resolve === 'function') {
       const resolved = await service.resolve({ session });
+      const extraRoots = resolved?.additionalWritableRoots;
       if (resolved && ['read-only', 'workspace-write', 'danger-full-access'].includes(resolved.mode)
-        && typeof resolved.workspaceRoot === 'string' && path.isAbsolute(resolved.workspaceRoot)) {
+        && typeof resolved.workspaceRoot === 'string' && path.isAbsolute(resolved.workspaceRoot)
+        && (extraRoots === undefined || (Array.isArray(extraRoots)
+          && extraRoots.every((root) => typeof root === 'string' && path.isAbsolute(root) && !root.includes('\0'))))) {
         sandbox = {
           status: 'known', mode: resolved.mode, workspaceRoot: resolved.workspaceRoot,
           sessionBound: session !== undefined,
           ...(typeof resolved.sessionId === 'string' ? { sessionId: resolved.sessionId } : {}),
+          ...(extraRoots === undefined ? {} : { additionalWritableRoots: [...new Set(extraRoots)].sort() }),
         };
       } else sandbox = { status: 'unknown', reason: 'sandbox_policy_invalid' };
     }
@@ -65,7 +69,10 @@ export async function apply(ctx, input) {
   if (config.background === true) throw new Error('incremental background mode is unavailable: this host has no per-job quiet delivery contract');
   const executorConfig = validateDshConfiguration({ ...config, approvedRepoRoot: config.repoRoot });
   const require = createRequire(path.join(config.runtimeRoot, 'package.json'));
-  const { defineTool } = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-tools')).href);
+  const toolEntry = await realpath(require.resolve('@deepseek-ai/dsh-tools'));
+  const relativeToolEntry = path.relative(path.join(await realpath(config.runtimeRoot), 'node_modules'), toolEntry);
+  if (relativeToolEntry.startsWith('..') || path.isAbsolute(relativeToolEntry)) throw new Error('Runtime package resolved outside the approved installation');
+  const { defineTool } = await import(pathToFileURL(toolEntry).href);
   if (typeof defineTool !== 'function') throw new Error('incremental requires the public defineTool API');
   const controllers = new Set();
   const operations = new Set();

@@ -29,3 +29,23 @@ jobs:
         run: |
           node -e "require('node:fs').mkdirSync('artifacts', {recursive: true})"
           npm pack --ignore-scripts --pack-destination artifacts
+
+  dsh-latest:
+    name: DSH 0.2.2-rc.2 integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.22.3'
+      - name: Prepare official DSH runtime without installation scripts
+        run: |
+          npm install --prefix artifacts/dsh-runtime --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org @deepseek-ai/dsh@0.2.2-rc.2 pnpm@11.28.5
+          echo "$GITHUB_WORKSPACE/artifacts/dsh-runtime/node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Run tests with actual DSH packages and offline adapter fixtures
+        env:
+          DSH_TEST_RUNTIME_ROOT: ${{ github.workspace }}/artifacts/dsh-runtime
+        run: npm test

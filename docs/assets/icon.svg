@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 130 130" role="img" aria-labelledby="title desc">
+  <title id="title">dsh-incremental icon</title>
+  <desc id="desc">A square task-graph mark with two mint input nodes and one amber dependent node.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x=".5" y=".5" width="129" height="129" rx="30" fill="#112b3b" stroke="#345465"/>
+    <path d="M39 38H68L92 65 68 92H39" stroke="#79dfc5" stroke-width="4"/>
+    <path d="M39 38V92" stroke="#79dfc5" stroke-width="4"/>
+    <rect x="29" y="28" width="20" height="20" rx="6" fill="#79dfc5" stroke="#112b3b" stroke-width="4"/>
+    <rect x="29" y="82" width="20" height="20" rx="6" fill="#79dfc5" stroke="#112b3b" stroke-width="4"/>
+    <rect x="82" y="55" width="20" height="20" rx="6" fill="#f6b181" stroke="#112b3b" stroke-width="4"/>
+  </g>
+</svg>

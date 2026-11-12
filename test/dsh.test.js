@@ -12,6 +12,7 @@ import { inspectDshRuntime } from '../src/doctor.js';
 import { apply as applyPlugin, resolveHostSecurityPolicy } from '../src/plugin.js';
 import { runReview } from '../src/engine.js';
 import { CacheStore } from '../src/cache.js';
+import { deepSeekTransport, minimumDshNodeVersion, supportsDshNode } from '../src/dsh-runtime.js';
 
 const runtimeRoot = process.env.DSH_TEST_RUNTIME_ROOT
   ?? path.join(process.env.LOCALAPPDATA ?? path.join(homedir(), 'AppData', 'Local'), 'Programs/DeepSeek Harness/resources/dsh-app');
@@ -47,6 +48,35 @@ async function fakeExecutor(sequence = chunks(), overrides = {}, observe = () =>
   });
 }
 const runtimeTest = (name, fn) => test(name, { skip: !installed && 'Existing DSH runtime is not present' }, fn);
+
+async function mountToolRuntime(root, tools, system, require) {
+  await root.plugin(system.default);
+  await root.plugin(tools.ToolRuntime);
+  if (typeof root.tools.setExecutor === 'function') {
+    await root.plugin(await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-tool-executor-native')).href));
+  }
+}
+
+async function executeTool(root, { name, arguments: args, callId, signal }) {
+  if (typeof root.tools.setExecutor !== 'function') return root.tools.execute({ name, arguments: args, callId, signal });
+  const batch = await root.tools.execute({
+    calls: [{ type: 'tool-call', id: callId, name, arguments: JSON.stringify(args) }], signal,
+  });
+  assert.equal(batch.results.length, 1);
+  assert.equal(batch.results[0].callId, callId);
+  return batch.results[0].result;
+}
+
+test('Node requirements distinguish official runtime generations before importing runtime code', () => {
+  assert.equal(minimumDshNodeVersion('0.1.0-rc.6'), '22.13.0');
+  assert.equal(minimumDshNodeVersion('0.2.2-rc.2'), '24.9.0');
+  assert.equal(supportsDshNode('0.1.0-rc.6', '22.12.9'), false);
+  assert.equal(supportsDshNode('0.1.0-rc.6', '22.13.0'), true);
+  assert.equal(supportsDshNode('0.2.2-rc.2', '22.23.2'), false);
+  assert.equal(supportsDshNode('0.2.2-rc.2', '24.8.9'), false);
+  assert.equal(supportsDshNode('0.2.2-rc.2', '24.9.0'), true);
+  assert.equal(supportsDshNode('0.2.2-rc.2', '25.0.0'), true);
+});
 
 test('strict review schema rejects wrong fields and invalid finding locations', () => {
   assert.equal(validateReviewOutput(output), output);
@@ -115,11 +145,30 @@ test('unavailable policy facts remain unknown; approval defaults do not hide ses
   assert.deepEqual(agentless.approval, { status: 'known', effectivePolicy: 'ask', source: 'configured_default' });
 });
 
+test('session-scoped additional writable roots participate in the policy snapshot', async () => {
+  const extraRoot = path.join(path.dirname(repoRoot), 'approved-extra');
+  const roots = [extraRoot, repoRoot, extraRoot];
+  const service = { resolve: () => ({ mode: 'workspace-write', workspaceRoot: repoRoot, additionalWritableRoots: roots }) };
+  const context = { get: (name) => name === 'sandboxPolicy' ? service : undefined };
+  const first = await resolveHostSecurityPolicy(context, { repoRoot });
+  assert.deepEqual(first.sandbox.additionalWritableRoots, [extraRoot, repoRoot].sort());
+  roots.pop();
+  roots.pop();
+  const changed = await resolveHostSecurityPolicy(context, { repoRoot });
+  assert.notDeepEqual(first.sandbox, changed.sandbox);
+  roots.push('relative-unapproved-root');
+  const invalid = await resolveHostSecurityPolicy(context, { repoRoot });
+  assert.deepEqual(invalid.sandbox, { status: 'unknown', reason: 'sandbox_policy_invalid' });
+});
+
 runtimeTest('doctor inspects actual public APIs without a credential or model call', async () => {
   const report = await inspectDshRuntime({ runtimeRoot });
   assert.equal(report.compatible, true);
   assert.equal(report.capabilities.modelCalls, 0);
   assert.equal(report.capabilities.credentialResolution, false);
+  const modules = await loadDshModules(runtimeRoot);
+  assert.equal(report.capabilities.deepSeekTransport, deepSeekTransport(modules['@deepseek-ai/dsh-llm-deepseek'].exports));
+  assert.equal(report.requiredNode, minimumDshNodeVersion(modules['@deepseek-ai/dsh-llm'].version));
   for (const item of report.packages) {
     assert.match(item.sha256, /^[0-9a-f]{64}$/);
     assert.equal(item.modificationStatus, 'unknown_no_trusted_baseline');
@@ -493,15 +542,14 @@ runtimeTest('timeout cancels the cooperative provider and preserves the consumed
   finally { await executor.dispose(); }
 });
 
-runtimeTest('actual old tool registry validates canonical outputs and renders JSON content', async () => {
+runtimeTest('actual tool executor validates canonical outputs and renders JSON content', async () => {
   const modules = await loadDshModules(runtimeRoot);
   const require = createRequire(path.join(runtimeRoot, 'package.json'));
   const tools = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-tools')).href);
   const system = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-system-prompt')).href);
   const root = new modules['@deepseek-ai/cordis'].exports.Context();
   try {
-    await root.plugin(system.default);
-    await root.plugin(tools.ToolRuntime);
+    await mountToolRuntime(root, tools, system, require);
     root.tools.register(tools.defineTool({
       name: 'incremental_fixture', description: 'Offline canonical-output contract test', parameters: {},
       output: {
@@ -510,7 +558,7 @@ runtimeTest('actual old tool registry validates canonical outputs and renders JS
       },
       execute: async () => ({ summary: 'canonical' }),
     }));
-    const result = await root.tools.execute({ name: 'incremental_fixture', arguments: {}, callId: 'offline-fixture', signal: new AbortController().signal });
+    const result = await executeTool(root, { name: 'incremental_fixture', arguments: {}, callId: 'offline-fixture', signal: new AbortController().signal });
     assert.equal(result.isError, false);
     assert.deepEqual(result.value, { summary: 'canonical' });
     assert.deepEqual(result.content, [{ type: 'text', text: '{"summary":"canonical"}' }]);
@@ -518,6 +566,7 @@ runtimeTest('actual old tool registry validates canonical outputs and renders JS
 });
 
 runtimeTest('advertised-route wire uses one fixed authenticated bounded GET with redirects forbidden', async () => {
+  const messagesTransport = deepSeekTransport((await loadDshModules(runtimeRoot))['@deepseek-ai/dsh-llm-deepseek'].exports) === 'deepseek-messages';
   // Transport replacement is contained in a child process; no network request occurs.
   const script = `
     import { createDshExecutor } from ${JSON.stringify(new URL('../src/dsh-executor.js', import.meta.url).href)};
@@ -564,7 +613,8 @@ runtimeTest('advertised-route wire uses one fixed authenticated bounded GET with
   assert.equal(observed.calls, 5);
   assert.deepEqual(observed.references, Array(5).fill('OFFLINE_METADATA_ONLY'));
   for (const sent of observed.requests) assert.deepEqual(sent, {
-    url: 'https://example.invalid/fixed/models', method: 'GET', redirect: 'error', approvedCredential: true, bodyAbsent: true,
+    url: messagesTransport ? 'https://example.invalid/models' : 'https://example.invalid/fixed/models',
+    method: 'GET', redirect: 'error', approvedCredential: true, bodyAbsent: true,
   });
   assert.deepEqual(observed.firstIdentity.advertisedModel, { id: 'fixture-model', name: 'Visible Fixture', owned_by: 'fixture-provider' });
   assert.equal(observed.firstIdentity.model.immutableRevision, null);
@@ -578,6 +628,7 @@ runtimeTest('advertised-route wire uses one fixed authenticated bounded GET with
 });
 
 runtimeTest('official DeepSeek wire excludes message metadata and cancels HTTP body after rejected tool calls', async () => {
+  const messagesTransport = deepSeekTransport((await loadDshModules(runtimeRoot))['@deepseek-ai/dsh-llm-deepseek'].exports) === 'deepseek-messages';
   // A separate process contains the fetch replacement, even if the assertion fails.
   // The installed official adapter is used; no request reaches a network transport.
   const script = `
@@ -592,10 +643,13 @@ runtimeTest('official DeepSeek wire excludes message metadata and cancels HTTP b
       options.signal.addEventListener('abort', () => { abortObserved = true; }, { once: true });
       const body = new ReadableStream({
         start(controller) {
-          const frame = { choices: [{ delta: { tool_calls: [{
+          const frames = ${messagesTransport} ? [
+            { type: 'message_start', message: { usage: { input_tokens: 1, output_tokens: 0 } } },
+            { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'offline-call', name: 'forbidden', input: {} } },
+          ] : [{ choices: [{ delta: { tool_calls: [{
             index: 0, id: 'offline-call', function: { name: 'forbidden', arguments: '{}' },
-          }] } }] };
-          controller.enqueue(new TextEncoder().encode('data: ' + JSON.stringify(frame) + '\\n\\n'));
+          }] } }] }];
+          controller.enqueue(new TextEncoder().encode(frames.map(frame => 'data: ' + JSON.stringify(frame) + '\\n\\n').join('')));
         },
         cancel() { cancelObserved = true; },
       });
@@ -617,9 +671,11 @@ runtimeTest('official DeepSeek wire excludes message metadata and cancels HTTP b
           },
         });
       } catch (error) { failure = { code: error.code, modelCalls: error.modelCalls }; }
+      // Messages transport closes its parser after aborting the HTTP request.
+      await new Promise(resolve => setImmediate(resolve));
       process.stdout.write(JSON.stringify({
         failure, requestCount, abortObserved, cancelObserved, requestUrl, approvedCredential,
-        messages: payload?.messages, toolCount: payload?.tools?.length ?? 0,
+        messages: payload?.messages, system: payload?.system, toolCount: payload?.tools?.length ?? 0,
         maxTokens: payload?.max_tokens, thinking: payload?.thinking,
       }));
     } finally {
@@ -634,13 +690,14 @@ runtimeTest('official DeepSeek wire excludes message metadata and cancels HTTP b
   const observed = JSON.parse(stdout);
   assert.deepEqual(observed.failure, { code: 'UNEXPECTED_BLOCK', modelCalls: 1 });
   assert.equal(observed.requestCount, 1);
-  assert.equal(observed.requestUrl, 'https://example.invalid/chat/completions');
+  assert.equal(observed.requestUrl, messagesTransport ? 'https://example.invalid/v1/messages' : 'https://example.invalid/chat/completions');
   assert.equal(observed.approvedCredential, true);
   assert.equal(observed.abortObserved, true);
   assert.equal(observed.cancelObserved, true);
-  assert.deepEqual(observed.messages, [
-    { role: 'system', content: 'frozen system' }, { role: 'user', content: 'frozen input' },
-  ]);
+  assert.deepEqual(observed.messages, messagesTransport
+    ? [{ role: 'user', content: [{ type: 'text', text: 'frozen input' }] }]
+    : [{ role: 'system', content: 'frozen system' }, { role: 'user', content: 'frozen input' }]);
+  if (messagesTransport) assert.equal(observed.system, 'frozen system');
   assert.equal(observed.toolCount, 0);
   assert.equal(observed.maxTokens, 4096);
   assert.deepEqual(observed.thinking, { type: 'disabled' });
@@ -700,7 +757,79 @@ runtimeTest('official pi-ai wire uses the fixed endpoint, approved credential an
   ]);
 });
 
-runtimeTest('actual plugin registers its fixed tools on rc.6 and rejects path-like report identifiers', async () => {
+runtimeTest('official DeepSeek transport preserves usage and rejects invalid JSON, truncation and HTTP failure without retries', async () => {
+  const messagesTransport = deepSeekTransport((await loadDshModules(runtimeRoot))['@deepseek-ai/dsh-llm-deepseek'].exports) === 'deepseek-messages';
+  const script = `
+    import { createDshExecutor } from ${JSON.stringify(new URL('../src/dsh-executor.js', import.meta.url).href)};
+    const messagesTransport = ${messagesTransport};
+    let calls = 0, scenario, payloads = [], references = [];
+    globalThis.fetch = async (url, options) => {
+      calls++;
+      payloads.push({ url: String(url), body: JSON.parse(options.body), redirect: options.redirect,
+        credential: new Headers(options.headers).get('authorization') === 'Bearer offline-fixture-key' });
+      if (scenario === 'http-failure') return Response.json({ error: { type: 'server_error', message: 'private-provider-detail' } }, { status: 503 });
+      const text = scenario === 'invalid-json' ? 'invalid-json' : JSON.stringify(${JSON.stringify(output)});
+      const frames = messagesTransport ? [
+        { type: 'message_start', message: { usage: { input_tokens: 8, output_tokens: 0, cache_read_input_tokens: 2, cache_creation_input_tokens: 3 } } },
+        { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text } },
+        { type: 'content_block_stop', index: 0 },
+        { type: 'message_delta', delta: { stop_reason: scenario === 'truncated' ? 'max_tokens' : 'end_turn' }, usage: { output_tokens: 4 } },
+        { type: 'message_stop' },
+      ] : [
+        { choices: [{ delta: { content: text } }] },
+        { choices: [{ delta: {}, finish_reason: scenario === 'truncated' ? 'length' : 'stop' }],
+          usage: { prompt_tokens: 10, completion_tokens: 4, total_tokens: 14, prompt_cache_hit_tokens: 2, prompt_cache_miss_tokens: 8 } },
+      ];
+      return new Response(frames.map(frame => 'data: ' + JSON.stringify(frame) + '\\n\\n').join('')
+        + (messagesTransport ? '' : 'data: [DONE]\\n\\n'), { headers: { 'content-type': 'text/event-stream' } });
+    };
+    const executor = await createDshExecutor({
+      runtimeRoot: ${JSON.stringify(runtimeRoot)}, provider: 'deepseek-official', model: 'offline-fixture',
+      connection: { adapter: 'deepseek', baseURL: 'https://example.invalid/fixed/v1', thinking: 'disabled', reasoningEffort: 'off' },
+      credentialEnv: 'OFFLINE_DEEPSEEK_WIRE_ONLY', allowRemote: true, approvedRepoRoot: process.cwd(), timeoutMs: 1500,
+    }, { resolveCredential: async reference => { references.push(reference); return 'offline-fixture-key'; } });
+    try {
+      const results = [];
+      for (scenario of ['valid', 'invalid-json', 'truncated', 'http-failure']) {
+        try { results.push(await executor.execute({ request: ${JSON.stringify(request)}, repoRoot: process.cwd() })); }
+        catch (error) { results.push({ code: error.code, message: error.message, modelCalls: error.modelCalls, usage: error.usage }); }
+      }
+      process.stdout.write(JSON.stringify({ results, calls, payloads, references, transport: executor.identity.transport }));
+    } finally { await executor.dispose(); }
+  `;
+  const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', script], {
+    cwd: repoRoot, timeout: 30000, windowsHide: true,
+  });
+  const observed = JSON.parse(stdout);
+  assert.equal(observed.calls, 4);
+  assert.equal(observed.transport, messagesTransport ? 'deepseek-messages' : 'deepseek-chat-completions');
+  assert.deepEqual(observed.references, Array(4).fill('OFFLINE_DEEPSEEK_WIRE_ONLY'));
+  assert.deepEqual(observed.results[0].output, output);
+  assert.deepEqual(observed.results[0].finishReason, { kind: 'stop' });
+  for (const result of observed.results.slice(0, 3)) {
+    assert.equal(result.modelCalls, 1);
+    assert.equal(result.usage.inputTokens, 8);
+    assert.equal(result.usage.outputTokens, 4);
+    assert.equal(result.usage.cacheReadTokens, 2);
+    assert.equal(result.usage.cacheWriteTokens, messagesTransport ? 3 : null);
+    assert.equal(result.usage.totalTokens, messagesTransport ? 17 : null);
+  }
+  assert.deepEqual(observed.results.slice(1, 3).map(result => result.code), ['INVALID_JSON', 'FINISH_MAX_TOKENS']);
+  assert.equal(observed.results[3].modelCalls, 1);
+  assert.equal(observed.results[3].usage, null);
+  assert.match(observed.results[3].code, /^(FINISH_ERROR|MODEL_REQUEST_FAILED)$/);
+  assert.equal(JSON.stringify(observed.results).includes('private-provider-detail'), false);
+  for (const sent of observed.payloads) {
+    assert.equal(sent.url, messagesTransport ? 'https://example.invalid/fixed/v1/messages' : 'https://example.invalid/fixed/v1/chat/completions');
+    assert.equal(sent.redirect, messagesTransport ? 'error' : undefined);
+    assert.equal(sent.credential, true);
+    assert.equal(sent.body.max_tokens, 4096);
+    assert.deepEqual(sent.body.tools ?? [], []);
+  }
+});
+
+runtimeTest('actual plugin registers its fixed tools and rejects path-like report identifiers', async () => {
   const modules = await loadDshModules(runtimeRoot);
   const require = createRequire(path.join(runtimeRoot, 'package.json'));
   const tools = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-tools')).href);
@@ -708,20 +837,19 @@ runtimeTest('actual plugin registers its fixed tools on rc.6 and rejects path-li
   const plugin = await import('../src/plugin.js');
   const root = new modules['@deepseek-ai/cordis'].exports.Context();
   try {
-    await root.plugin(system.default);
-    await root.plugin(tools.ToolRuntime);
+    await mountToolRuntime(root, tools, system, require);
     const fiber = await root.plugin(plugin, {
       ...config(), repoRoot, manifestPath: path.join(repoRoot, 'fixture-manifest-not-opened.json'),
       stateDir: path.join(path.dirname(repoRoot), 'fixture-state-not-created'),
     });
     assert.deepEqual(root.tools.schemas().map(({ name }) => name).sort(), ['incremental_plan', 'incremental_report', 'incremental_run']);
     assert.deepEqual(root.tools.get('incremental_run').parameters.properties.full.type, 'boolean');
-    const result = await root.tools.execute({
+    const result = await executeTool(root, {
       name: 'incremental_report', arguments: { runId: '../../foreign' }, callId: 'bad-report-id', signal: new AbortController().signal,
     });
     assert.equal(result.isError, true);
     assert.match(JSON.stringify(result.content), /Invalid runId/);
-    const missing = await root.tools.execute({
+    const missing = await executeTool(root, {
       name: 'incremental_report', arguments: { runId: 'missing-fixture-run' }, callId: 'missing-report-id', signal: new AbortController().signal,
     });
     assert.equal(missing.isError, true);
@@ -760,10 +888,10 @@ runtimeTest('plugin disposal waits for operations already reading their manifest
   }
 });
 
-runtimeTest('public rc.6 profile loader composes and activates the declared bundle patch offline', async () => {
+runtimeTest('public profile loader composes and activates the declared bundle patch offline', async () => {
   const script = `
     import assert from 'node:assert/strict';
-    import { mkdtemp, mkdir, writeFile, symlink, rm } from 'node:fs/promises';
+    import { mkdtemp, mkdir, writeFile, cp, rm, realpath } from 'node:fs/promises';
     import { tmpdir } from 'node:os';
     import path from 'node:path';
     import { createRequire } from 'node:module';
@@ -779,7 +907,7 @@ runtimeTest('public rc.6 profile loader composes and activates the declared bund
       fromRuntime('@deepseek-ai/dsh-app-boot'), fromRuntime('@deepseek-ai/dsh-tools'),
       fromRuntime('@deepseek-ai/dsh-system-prompt'),
     ]);
-    const temporary = await mkdtemp(path.join(tmpdir(), 'dsh-incremental-profile-'));
+    const temporary = await mkdtemp(path.join(await realpath(tmpdir()), 'dsh-incremental-profile-'));
     const root = new Context();
     try {
       const profileName = 'incremental-offline-fixture';
@@ -788,7 +916,11 @@ runtimeTest('public rc.6 profile loader composes and activates the declared bund
       await writeFile(path.join(profileDir, 'package.json'), JSON.stringify({
         name: 'offline-profile', private: true, dsh: { profile: { bundles: ['dsh-incremental'] } },
       }));
-      await symlink(repoRoot, path.join(profileDir, 'node_modules', 'dsh-incremental'), process.platform === 'win32' ? 'junction' : 'dir');
+      const packageDir = path.join(profileDir, 'node_modules', 'dsh-incremental');
+      await mkdir(packageDir);
+      for (const relative of ['package.json', 'cordis.patch.yml', 'src']) {
+        await cp(path.join(repoRoot, relative), path.join(packageDir, relative), { recursive: true });
+      }
       const profile = boot.loadProfile('offline-test', profileName, path.join(runtimeRoot, 'package.json'), temporary);
       assert.equal(profile.layers.length, 1);
       assert.equal(profile.layers[0].packageName, 'dsh-incremental');
@@ -804,10 +936,11 @@ runtimeTest('public rc.6 profile loader composes and activates the declared bund
       assert.equal(entries[0].name, 'dsh-incremental');
       await root.plugin(system.default);
       await root.plugin(tools.ToolRuntime);
+      if (typeof root.tools.setExecutor === 'function') await root.plugin(await fromRuntime('@deepseek-ai/dsh-tool-executor-native'));
       await root.plugin(Loader, { baseUrl: pathToFileURL(profileDir).href + '/' });
       for (const entry of entries) await root.loader.create(entry);
       await root.loader.await();
-      await boot.assertEntriesActivated(root, 'offline-test');
+      await (boot.auditStartupEntries ?? boot.assertEntriesActivated)(root, 'offline-test');
       const registered = root.tools.schemas().map(({ name }) => name).sort();
       assert.deepEqual(registered, ['incremental_plan', 'incremental_report', 'incremental_run']);
       await root.loader.remove('incremental');
