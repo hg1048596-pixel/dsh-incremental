@@ -57,7 +57,7 @@ test('npm CLI discovery supports npm scripts and standalone Windows and Unix Nod
   assert.equal(findNpmCli({ env: {}, execPath: windowsNode }), windowsNpm);
   assert.equal(findNpmCli({ env: {}, execPath: unixNode }), unixNpm);
   assert.equal(findNpmCli({ env: { npm_execpath: scriptNpm }, execPath: unixNode }), scriptNpm);
-  assert.equal(findNpmCli({ env: { npm_execpath: path.relative(process.cwd(), scriptNpm) }, execPath: unixNode }), unixNpm);
+  assert.equal(findNpmCli({ env: { npm_execpath: path.relative(base, scriptNpm) }, execPath: unixNode }), unixNpm);
   assert.equal(findNpmCli({ env: { DSH_TEST_NPM_CLI: path.join(base, 'missing-npm.js'), npm_execpath: scriptNpm }, execPath: unixNode }), path.join(base, 'missing-npm.js'));
 });
 
