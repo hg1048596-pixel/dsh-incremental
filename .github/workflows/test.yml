@@ -45,6 +45,7 @@ jobs:
         run: |
           npm install --prefix artifacts/dsh-runtime --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org @deepseek-ai/dsh@0.2.2-rc.2 pnpm@11.28.5
           echo "$GITHUB_WORKSPACE/artifacts/dsh-runtime/node_modules/.bin" >> "$GITHUB_PATH"
+          echo "DSH_TEST_NPM_CLI=$(npm root --global)/npm/bin/npm-cli.js" >> "$GITHUB_ENV"
       - name: Run tests with actual DSH packages and offline adapter fixtures
         env:
           DSH_TEST_RUNTIME_ROOT: ${{ github.workspace }}/artifacts/dsh-runtime

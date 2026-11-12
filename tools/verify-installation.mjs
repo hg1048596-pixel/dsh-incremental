@@ -17,8 +17,24 @@ export const defaultRuntimeRoot = process.env.DSH_TEST_RUNTIME_ROOT ?? [
   process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Programs/DeepSeek Harness/resources/dsh-app'),
   path.join(homedir(), 'AppData/Local/Programs/DeepSeek Harness/resources/dsh-app'),
 ].find((candidate) => candidate && existsSync(path.join(candidate, 'node_modules/@deepseek-ai/dsh/package.json')));
-export const defaultNpmCli = process.env.DSH_TEST_NPM_CLI
-  ?? path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+/** Find an existing npm CLI without fetching or bootstrapping a package manager. */
+export function findNpmCli({ env = process.env, execPath = process.execPath } = {}) {
+  // An explicit override must not silently select another npm when it is missing.
+  if (env.DSH_TEST_NPM_CLI !== undefined) {
+    if (typeof env.DSH_TEST_NPM_CLI !== 'string' || !env.DSH_TEST_NPM_CLI.trim()) throw new Error('DSH_TEST_NPM_CLI must name an npm CLI file');
+    return path.resolve(env.DSH_TEST_NPM_CLI);
+  }
+  if (!path.isAbsolute(execPath)) throw new Error('Node executable path must be absolute');
+  const nodeDirectory = path.dirname(execPath);
+  return [
+    env.npm_execpath,
+    path.join(nodeDirectory, 'node_modules/npm/bin/npm-cli.js'),
+    path.resolve(nodeDirectory, '../lib/node_modules/npm/bin/npm-cli.js'),
+    path.resolve(nodeDirectory, '../share/nodejs/npm/bin/npm-cli.js'),
+  ].find((candidate) => typeof candidate === 'string' && path.isAbsolute(candidate)
+    && path.basename(candidate) === 'npm-cli.js' && existsSync(candidate));
+}
+export const defaultNpmCli = findNpmCli();
 
 // Inherited by the existing DSH CLI, the existing pnpm, and the loader probe.
 // This is an additional process-local guard; --offline is also passed to pnpm.
@@ -118,6 +134,7 @@ export async function verifyInstallation({ runtimeRoot = defaultRuntimeRoot, exp
   const execution = { base, env, cwd: base };
   let packFiles;
   if (tarball === undefined) {
+    if (!npmCli) throw new Error('Existing npm CLI not found; pass --npm-cli PATH or DSH_TEST_NPM_CLI');
     npmCli = path.resolve(npmCli);
     await access(npmCli); // No corepack or other package-manager bootstrap.
     const packed = await execute('pack', [npmCli, 'pack', '--offline', '--ignore-scripts', '--json', '--cache', paths.cache, '--pack-destination', paths.pack, repoRoot], execution);
