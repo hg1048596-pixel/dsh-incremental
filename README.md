@@ -1,10 +1,59 @@
-# dsh-incremental
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="dsh-incremental — Review what changed. DeepSeek Harness 的只读 AI 增量审查插件" width="1200">
+</p>
+
+<p align="center">
+  <strong>简体中文</strong> · <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <a href="package.json"><img src="https://img.shields.io/badge/version-0.1.0-2563eb?style=flat-square" alt="Version 0.1.0"></a>
+  <a href="docs/compatibility.md"><img src="https://img.shields.io/badge/DSH-0.1.0--rc.6-0f766e?style=flat-square" alt="DSH 0.1.0-rc.6 compatibility baseline"></a>
+  <a href="docs/compatibility.md"><img src="https://img.shields.io/badge/Node-22.23.2_tested-337a48?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Tested with Node 22.23.2"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748b?style=flat-square" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <strong>复用仍然有效的审查结果，只重跑受变化影响的任务。</strong><br>
+  为 DeepSeek Harness 提供有来源记录、能解释失效原因的只读 AI 代码审查。
+</p>
+
+<p align="center">
+  <a href="#quick-start"><img src="https://img.shields.io/badge/Quick_Start-2563eb?style=for-the-badge" alt="快速开始"></a>
+  <a href="#how-it-works"><img src="https://img.shields.io/badge/How_It_Works-0f766e?style=for-the-badge" alt="查看概念图"></a>
+  <a href="docs/core-functionality.md"><img src="https://img.shields.io/badge/Documentation-334155?style=for-the-badge" alt="核心功能文档"></a>
+  <a href="https://github.com/hg1048596-pixel/dsh-incremental/actions/workflows/test.yml"><img src="https://img.shields.io/badge/CI_Checks-334155?style=for-the-badge" alt="查看 GitHub 自动测试"></a>
+  <a href="https://github.com/hg1048596-pixel/dsh-incremental/issues"><img src="https://img.shields.io/badge/Issues-334155?style=for-the-badge" alt="问题反馈"></a>
+</p>
+
+<p align="center">
+  <a href="docs/core-functionality.md">功能与验收</a> ·
+  <a href="docs/permission-performance.md">性能数据</a> ·
+  <a href="docs/compatibility.md">兼容范围</a> ·
+  <a href="#reuse-rules">缓存规则</a>
+</p>
+
+---
 
 DSH 的只读 AI 增量审查插件：将审查拆成有依赖关系的任务，保存每项任务的实际输入与结果，在输入、路线、权限和缓存期限均符合条件时复用结果。修改一个模块后，只重新执行受影响的任务及其下游。
 
 **状态：本地核心功能已通过真实 DeepSeek API 验收。** 四任务首次执行 4 次推理，无变化时复用全部结果、推理 0 次；只修改 pricing 后，仅 pricing 和汇总重跑、推理 2 次。这是一个小型示例的功能验收；各阶段仍查询模型元数据，不代表普遍性能或结论正确性已获验证。详见 [核心功能与实测数据](docs/core-functionality.md) 和 [可移植验收证据](docs/evidence/core-acceptance.json)。
 
 兼容基线为 Windows 上已有的 **DSH 0.1.0-rc.6 / Node 22.23.2**；未宣称兼容其他 DSH 版本。插件不修改 DSH 核心，不运行被审查仓库的脚本，不自动安装模型或切换路线。
+
+<a id="how-it-works"></a>
+
+## 增量审查如何工作
+
+将审查拆成声明了输入、上游依赖和验收条件的任务。每次运行重新核对输入与来源：仍符合复用条件的结果直接复用，发生变化的任务及其下游重新执行，报告保留逐任务原因。
+
+<p align="center">
+  <img src="docs/assets/incremental-flow.svg" alt="四任务概念图：修改 pricing 后，pricing 和 summary 重跑，auth 和 pagination 复用；复用前检查输入、上游版本、模型、策略、权限、有效期及结果完整性。首次执行 4 项，无变化执行 0 项，修改后执行 2 项。" width="1200">
+</p>
+
+图示为启用 `visible-model` 且所有复用检查通过的四任务示例。默认 `strict` 模式下，当前 DeepSeek 路线因服务端版本无法核实而不能跨运行复用。**缓存符合复用条件不等于审查结论正确**；无变化运行仍会读取输入、核对权限并查询已授权路线的模型元数据。
+
+<a id="quick-start"></a>
 
 ## 安装到已有 DSH
 
@@ -142,6 +191,8 @@ dsh --profile incremental-demo --patch C:\private\incremental.yml
 
 工具参数不能改变仓库、凭据、模型或授权。插件从已有 credentials 服务解析所配引用；没有该服务时使用对应环境变量。运行支持取消，`background: true` 明确报错：当前 rc.6 公开 jobs 接口无法保证完成时不额外唤醒父模型。插件不会自行发起后续对话。
 
+<a id="reuse-rules"></a>
+
 ## 复用边界
 
 - 每次重新读取全部声明输入，以同一批字节构造哈希和请求；不依赖时间戳或 Git 状态。完整任务、目录清单、上游结果版本、实际请求、路线、执行器、提示词和验证器身份、权限与仓库身份均参与检查。
@@ -156,7 +207,7 @@ dsh --profile incremental-demo --patch C:\private\incremental.yml
 
 核心公开入口为 `./core` 的 `runReview`、`planReview`；插件入口为 `src/plugin.js`。实现只依赖 Node 内置模块，实际模型执行使用指定 DSH 安装提供的公开包，不捆绑或升级 DSH 核心。
 
-Windows 权限读取现使用直接 .NET API，每次仍启动独立进程、重新读取完整权限；检查时点和次数不变。本机五组配对中，无变化运行的中位总耗时从 23.72 秒降到 15.40 秒。范围、原始数据与复现步骤见[权限读取优化](docs/permission-performance.md)。升级后因实现摘要变化，旧缓存会按原有规则失效一次。
+Windows 权限读取现使用直接 .NET API，每次仍启动独立进程、重新读取完整权限；检查时点和次数不变。本机五组配对中，无变化运行的中位总耗时从 23.72 秒降到 15.40 秒。这是使用确定性缓存结果的四任务本地测量，不包含模型调用、模型元数据查询或 DSH 桌面初始化，不用于评估审查质量或承诺其他仓库的速度。范围、原始数据与复现步骤见[权限读取优化](docs/permission-performance.md)。升级后因实现摘要变化，旧缓存会按原有规则失效一次。
 
 ## 开发诊断与历史记录
 

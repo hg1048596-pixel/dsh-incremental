@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">How incremental review works</title>
+  <desc id="desc">Four-task example with declared dependencies. After pricing changes, pricing and summary rerun while auth and pagination reuse eligible results. All input, upstream, model, policy, permission and expiry checks must pass. Reuse does not prove a conclusion correct.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="m1 1 7 4-7 4" fill="none" stroke="#7290a7" stroke-width="1.5" stroke-linejoin="round"/></marker>
+    <marker id="arrow-warm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="m1 1 7 4-7 4" fill="none" stroke="#bd612a" stroke-width="1.5" stroke-linejoin="round"/></marker>
+  </defs>
+  <rect x="1" y="1" width="1198" height="618" rx="24" fill="#f5f8fc" stroke="#dae3ed"/>
+  <g font-family="Segoe UI, Inter, Arial, sans-serif">
+    <text x="44" y="46" fill="#436680" font-size="12" font-weight="700" letter-spacing="2">THE INCREMENTAL REVIEW LOOP</text>
+    <text x="44" y="88" fill="#142b40" font-size="29" font-weight="700">One module changes. Its dependents rerun.</text>
+    <text x="44" y="116" fill="#586f84" font-size="15">Four-task example · declared dependencies · eligible reuse policy</text>
+
+    <rect x="36" y="144" width="712" height="292" rx="18" fill="#fff" stroke="#dae3ed"/>
+    <text x="58" y="174" fill="#586f84" font-size="12" font-weight="700" letter-spacing="1.2">TASK GRAPH / PRICING CHANGED</text>
+    <g fill="none" stroke="#7290a7" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M300 222H374Q390 222 390 238V274Q390 290 406 290H490"/>
+      <path d="M300 374H374Q390 374 390 358V306Q390 290 406 290H490"/>
+    </g>
+    <path d="M300 298H458Q474 298 474 290H490" fill="none" stroke="#bd612a" stroke-width="2.5" marker-end="url(#arrow-warm)"/>
+    <g>
+      <rect x="58" y="194" width="242" height="56" rx="12" fill="#edf8f3" stroke="#b6dcca"/>
+      <circle cx="80" cy="222" r="5" fill="#247755"/>
+      <text x="95" y="228" fill="#163d30" font-size="17" font-weight="600">auth</text>
+      <text x="279" y="226" fill="#247755" font-size="11" font-weight="700" text-anchor="end">REUSE</text>
+      <rect x="58" y="270" width="242" height="56" rx="12" fill="#fff3e9" stroke="#e6b68e"/>
+      <circle cx="80" cy="298" r="5" fill="#b55b25"/>
+      <text x="95" y="304" fill="#603b23" font-size="17" font-weight="600">pricing</text>
+      <text x="279" y="302" fill="#a9501e" font-size="11" font-weight="700" text-anchor="end">RERUN</text>
+      <rect x="58" y="346" width="242" height="56" rx="12" fill="#edf8f3" stroke="#b6dcca"/>
+      <circle cx="80" cy="374" r="5" fill="#247755"/>
+      <text x="95" y="380" fill="#163d30" font-size="17" font-weight="600">pagination</text>
+      <text x="279" y="378" fill="#247755" font-size="11" font-weight="700" text-anchor="end">REUSE</text>
+      <rect x="494" y="250" width="226" height="88" rx="14" fill="#fff3e9" stroke="#e6b68e"/>
+      <text x="514" y="282" fill="#603b23" font-size="19" font-weight="600">summary</text>
+      <text x="514" y="310" fill="#a9501e" font-size="12" font-weight="700">RERUN · upstream changed</text>
+    </g>
+
+    <rect x="772" y="144" width="392" height="292" rx="18" fill="#10273b"/>
+    <text x="798" y="177" fill="#93b4cb" font-size="12" font-weight="700" letter-spacing="1.2">REUSE REQUIRES FRESH CHECKS</text>
+    <g fill="none" stroke="#77d5bb" stroke-width="1.6">
+      <circle cx="807" cy="218" r="9"/><path d="m803 218 3 3 5-6"/>
+      <circle cx="807" cy="286" r="9"/><path d="m803 286 3 3 5-6"/>
+      <circle cx="807" cy="354" r="9"/><path d="m803 354 3 3 5-6"/>
+    </g>
+    <text x="831" y="217" fill="#eef5fc" font-size="16" font-weight="600">Inputs + dependencies</text>
+    <text x="831" y="241" fill="#a9bfd0" font-size="13">Content, directory lists, upstream versions</text>
+    <text x="831" y="285" fill="#eef5fc" font-size="16" font-weight="600">Identity + policy</text>
+    <text x="831" y="309" fill="#a9bfd0" font-size="13">Model, prompt, tools, permissions, expiry</text>
+    <text x="831" y="353" fill="#eef5fc" font-size="16" font-weight="600">Result + provenance</text>
+    <text x="831" y="377" fill="#a9bfd0" font-size="13">Complete, intact, no unknown dependencies</text>
+    <path d="M798 397H1138" stroke="#2a465c"/>
+    <text x="798" y="419" fill="#a9bfd0" font-size="12">Any failed check → rerun or fail / block explicitly</text>
+
+    <g>
+      <rect x="36" y="460" width="360" height="90" rx="14" fill="#fff" stroke="#dae3ed"/>
+      <text x="57" y="487" fill="#586f84" font-size="12" font-weight="700">01 / FIRST RUN</text>
+      <text x="57" y="524" fill="#142b40" font-size="26" font-weight="700">4 executed</text>
+      <text x="376" y="523" fill="#586f84" font-size="14" text-anchor="end">0 reused</text>
+      <rect x="420" y="460" width="360" height="90" rx="14" fill="#edf8f3" stroke="#b6dcca"/>
+      <text x="441" y="487" fill="#247755" font-size="12" font-weight="700">02 / NO CHANGES</text>
+      <text x="441" y="524" fill="#163d30" font-size="26" font-weight="700">0 executed</text>
+      <text x="760" y="523" fill="#247755" font-size="14" text-anchor="end">4 reused</text>
+      <rect x="804" y="460" width="360" height="90" rx="14" fill="#fff3e9" stroke="#e6b68e"/>
+      <text x="825" y="487" fill="#a9501e" font-size="12" font-weight="700">03 / PRICING CHANGED</text>
+      <text x="825" y="524" fill="#603b23" font-size="26" font-weight="700">2 executed</text>
+      <text x="1144" y="523" fill="#a9501e" font-size="14" text-anchor="end">2 reused</text>
+    </g>
+    <text x="44" y="588" fill="#586f84" font-size="13">Illustrative eligible flow. Strict mode may prevent reuse. Reuse eligibility does not prove a conclusion correct.</text>
+  </g>
+</svg>
