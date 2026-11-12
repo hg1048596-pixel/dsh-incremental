@@ -176,6 +176,11 @@ test('native Windows snapshots detect real DACL changes and between-observation 
   const { repo } = await fixture(t);
   const file = path.join(repo, 'owned-acl-fixture.txt');
   await fs.writeFile(file, 'same readable content');
+  // Windows can add the auto-inherited DACL flag on the first ACL write.
+  // Round-trip only this disposable file before capturing the exact baseline.
+  const fresh = await windowsPermissions([file]);
+  assert.equal(fresh.verified, true);
+  await runPowerShell(changeDaclScript, { path: file, restore: true, sddl: fresh.entries[0].dacl });
   const inputs = { files: ['owned-acl-fixture.txt'], directories: [] };
   const options = { permissionProvider: paths => windowsPermissions(paths) };
   const initial = await snapshotTask(repo, inputs, options);
