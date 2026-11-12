@@ -1,5 +1,7 @@
 # 真实 AI 增量审查：核心验收通过
 
+以下真实模型数据对应提交 `d32f848`。后续 Windows 权限读取优化的独立检查与耗时记录见[权限读取优化](permission-performance.md)，没有将其本地计时当作新的真实模型验收。
+
 本地修订已完成只读审查任务 DAG 的真实结果复用与选择性重跑。2026-11-11 使用已有 Windows DSH `0.1.0-rc.6`、Node `22.23.2` 和官方 DeepSeek 适配器，对一个全新四任务示例完成了 `4 → 0 → 2` 次推理的完整链路。配置为 `deepseek-flash`、`visible-model`、24 小时 TTL、并发 1、零自动重试。
 
 [可移植验收证据](evidence/core-acceptance.json) 保留通过链路及此前未通过的尝试。原始报告留在本机 `artifacts/core-acceptance/run-02FG6R/`，不随包分发凭据、完整请求、权限记录或缓存对象。

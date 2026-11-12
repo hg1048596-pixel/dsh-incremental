@@ -75,11 +75,15 @@ function statToken(stat) {
 // This script is constant. All filesystem names arrive as JSON over stdin.
 const windowsPermissionScript = String.raw`
 $ErrorActionPreference = 'Stop'
+# Node sends and decodes UTF-8 JSON; Windows' console codepage must not reinterpret paths.
+[Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 $request = ConvertFrom-Json -InputObject ([Console]::In.ReadToEnd())
 $entries = @()
 $reasons = @()
 $principal = $null
 $identity = $null
+$sections = [Security.AccessControl.AccessControlSections]::Access -bor [Security.AccessControl.AccessControlSections]::Owner -bor [Security.AccessControl.AccessControlSections]::Group
 try {
   $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
   $principal = [ordered]@{ userSID = [string]$identity.User.Value; groupSIDs = @($identity.Groups | ForEach-Object { [string]$_.Value } | Sort-Object -Unique) }
@@ -92,9 +96,17 @@ try {
 }
 foreach ($itemPath in $request.paths) {
   try {
-    $item = Get-Item -LiteralPath $itemPath -Force
-    $acl = Get-Acl -LiteralPath $itemPath
-    $entries += [ordered]@{ path = [string]$itemPath; owner = [string]$acl.Owner; dacl = [string]$acl.Sddl; reparse = [bool](($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) }
+    # Fresh native reads on every observation; no FileInfo, ACL or principal cache.
+    $attributes = [IO.File]::GetAttributes($itemPath)
+    $item = if (($attributes -band [IO.FileAttributes]::Directory) -ne 0) { [IO.DirectoryInfo]::new($itemPath) } else { [IO.FileInfo]::new($itemPath) }
+    $acl = [IO.FileSystemAclExtensions]::GetAccessControl($item, $sections)
+    try {
+      $owner = [string]$acl.GetOwner([Security.Principal.NTAccount]).Value
+    } catch [Security.Principal.IdentityNotMappedException] {
+      # Match Get-Acl's Owner property for an orphan SID without hiding read errors.
+      $owner = $acl.GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::Owner)
+    }
+    $entries += [ordered]@{ path = [string]$itemPath; owner = $owner; dacl = $acl.GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::All); reparse = [bool](($attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) }
   } catch {
     $entries += [ordered]@{ path = [string]$itemPath; error = [string]$_.Exception.GetType().FullName }
     $reasons += 'permission_unverifiable'
@@ -103,7 +115,8 @@ foreach ($itemPath in $request.paths) {
 [ordered]@{ verified = ($reasons.Count -eq 0); principal = $principal; entries = @($entries); reasons = @($reasons | Select-Object -Unique) } | ConvertTo-Json -Depth 8 -Compress
 `;
 
-async function windowsPermissions(paths, signal) {
+// Internal native reader, also exercised directly by platform equivalence tests.
+export async function windowsPermissions(paths, signal) {
   return new Promise((resolve, reject) => {
     const child = spawn('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', windowsPermissionScript], {
       windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'], signal,

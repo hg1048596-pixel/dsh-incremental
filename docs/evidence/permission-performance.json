@@ -1,0 +1,1007 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "native-windows-permission-overhead",
+  "baselineCommit": "d32f848609e4be68e03135d4b8e87f7b5f26691e",
+  "platform": "win32",
+  "nodeVersion": "v22.23.2",
+  "completedAt": "2026-11-12T02:39:07.85Z",
+  "repetitions": 5,
+  "protocol": {
+    "fixtureOnly": true,
+    "network": "none",
+    "permissionProvider": "native (no injected provider)",
+    "concurrency": 1,
+    "process": "Fresh Node process for every seed, warmup, metadata check, and sample",
+    "permissionProcess": "Actual native pwsh spawn observed; each unchanged run must spawn 16 fresh children",
+    "preparation": "Each variant seeded once, then warmed once; both excluded from sample statistics",
+    "states": "Independent baseline/current state directories on one identical unchanged generated example",
+    "pairOrder": "Odd pairs baseline/current; even pairs current/baseline",
+    "identityComparison": "Native snapshots checked before and after; only metadata digests exported"
+  },
+  "checks": {
+    "nativeSnapshotMetadataEqual": true,
+    "nativeAssuranceVerified": true,
+    "sourceUnchanged": true,
+    "generatedExampleUnchanged": true,
+    "allSamplesReused4Executed0Calls0": true,
+    "freshPwshChildrenPerUnchangedRun": 16
+  },
+  "sourceHashes": {
+    "baseline": {
+      "benchmark.js": "87d38aa21c57ccf119b076bc481117e9e577b751a71b3353b8a812fdb29e9808",
+      "cache.js": "6c61914f8a363ac750bf4a842ab54e3d8b6167cb4e5c8a7704f33dc7db69f73f",
+      "doctor.js": "6255998321e448630de12a8bbb9097e514db454f4237b17b6a2bee714d942eb5",
+      "dsh-executor.js": "f2a41327b7619a1c276fd4d986fbb2b804ac0ef083b7f5dc205b76eb7d0ffbc5",
+      "engine.js": "b0773c0c5f81433ca5789d4a20ba8ddb3b65e8629dc13bdd44f68f6e1d000bba",
+      "fixture-executor.js": "e92d5461cde5661bc99876ffeb0efbe05381eafd1583effa1fc380be78d10e82",
+      "manifest.js": "81a90b64897e74e73f00436d5e991f4b38ce27d5f4886ce16939bf6a653d644f",
+      "plugin.js": "69d67670ff9374e4d8c75d5dfb88ab06dda3f33bc3decf054acc8333ffa8fdec",
+      "report.js": "b4b26f26b9cd3b2f93acd7454ca0f7e71cc502f19b5530835abe55a66752a23c",
+      "request.js": "925dd4b397387609dba2b9596b2081d1d4dcb8fa24596a43137e8a79d3e27b96",
+      "snapshot.js": "9759b2881fc1d507bbee7297229c2bc40c01be7d0d08fecf2d8dcae8d628080c",
+      "value.js": "a190b04ddce36d711ff46eea59a90c2879f067cda9d29ff84f8fc36180b2802a"
+    },
+    "current": {
+      "benchmark.js": "87d38aa21c57ccf119b076bc481117e9e577b751a71b3353b8a812fdb29e9808",
+      "cache.js": "6c61914f8a363ac750bf4a842ab54e3d8b6167cb4e5c8a7704f33dc7db69f73f",
+      "doctor.js": "6255998321e448630de12a8bbb9097e514db454f4237b17b6a2bee714d942eb5",
+      "dsh-executor.js": "f2a41327b7619a1c276fd4d986fbb2b804ac0ef083b7f5dc205b76eb7d0ffbc5",
+      "engine.js": "b0773c0c5f81433ca5789d4a20ba8ddb3b65e8629dc13bdd44f68f6e1d000bba",
+      "fixture-executor.js": "e92d5461cde5661bc99876ffeb0efbe05381eafd1583effa1fc380be78d10e82",
+      "manifest.js": "81a90b64897e74e73f00436d5e991f4b38ce27d5f4886ce16939bf6a653d644f",
+      "plugin.js": "69d67670ff9374e4d8c75d5dfb88ab06dda3f33bc3decf054acc8333ffa8fdec",
+      "report.js": "b4b26f26b9cd3b2f93acd7454ca0f7e71cc502f19b5530835abe55a66752a23c",
+      "request.js": "925dd4b397387609dba2b9596b2081d1d4dcb8fa24596a43137e8a79d3e27b96",
+      "snapshot.js": "cf7bd3c373b88c7c60bfbb803cc52d40e4a2315ebbbedcb49ce7ecc9f018164a",
+      "value.js": "a190b04ddce36d711ff46eea59a90c2879f067cda9d29ff84f8fc36180b2802a"
+    },
+    "example": {
+      "review-tasks.json": "a6075d32fc0e581753c709efea9a41b7ec0acf6523d7604f05b8eed3f3d21037",
+      "src/auth.js": "cb8221ead3d30fa6657d132292c9b1293b1599327eac53af18c809c0b1b2cd5e",
+      "src/pagination.js": "98d1c2f6456fba5430c1e6b1c5c4c3c85fcd46afc89d9a4036c2d645c759e38f",
+      "src/pricing.js": "e1a9f20c15e7367d21629aba90e4721419302b384820fa43ab32680005ae33cf"
+    }
+  },
+  "metadata": {
+    "baseline": {
+      "snapshots": [
+        {
+          "taskId": "auth",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "f52e1404279994b1f4aeeb158c12d5014b319636d8219b930b1d7e07dbfab52b",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "1a5d8a09664464d7c7c75762d6448416f203b331835d5cc8dc02c01817e588a4"
+        },
+        {
+          "taskId": "pricing",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "56572cf2a91ec93c66d6952606e7f8879371da67f0dbee265953a893b52f8423",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "3fb015f24efe6279b6e6f4c5ba16e87698a2c002f31346a6a7301e4d746ffd31"
+        },
+        {
+          "taskId": "pagination",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "a78ebf4b39b30daa65b808f78f21e657e3fef7ff8785d532de74868e0ccdc066",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "771c6b4002793f46b718c665f2e5765ae962159e30e345f51f5a94a8e93d0840"
+        },
+        {
+          "taskId": "summary",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 10,
+          "permissionSha256": "c02a69e397d4092948c5c3156f77f77f67a3961a0b6e210ce35ea46c387d8953",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "0953ba09b48f81f20e9cecae1f385d317761623257f402ad0821a1dc468351c9"
+        }
+      ],
+      "pwshChildren": 8,
+      "pwshElapsedMs": 8427.946,
+      "nodeWallMs": 8604.5322
+    },
+    "current": {
+      "snapshots": [
+        {
+          "taskId": "auth",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "f52e1404279994b1f4aeeb158c12d5014b319636d8219b930b1d7e07dbfab52b",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "1a5d8a09664464d7c7c75762d6448416f203b331835d5cc8dc02c01817e588a4"
+        },
+        {
+          "taskId": "pricing",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "56572cf2a91ec93c66d6952606e7f8879371da67f0dbee265953a893b52f8423",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "3fb015f24efe6279b6e6f4c5ba16e87698a2c002f31346a6a7301e4d746ffd31"
+        },
+        {
+          "taskId": "pagination",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "a78ebf4b39b30daa65b808f78f21e657e3fef7ff8785d532de74868e0ccdc066",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "771c6b4002793f46b718c665f2e5765ae962159e30e345f51f5a94a8e93d0840"
+        },
+        {
+          "taskId": "summary",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 10,
+          "permissionSha256": "c02a69e397d4092948c5c3156f77f77f67a3961a0b6e210ce35ea46c387d8953",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "0953ba09b48f81f20e9cecae1f385d317761623257f402ad0821a1dc468351c9"
+        }
+      ],
+      "pwshChildren": 8,
+      "pwshElapsedMs": 5565.413699999999,
+      "nodeWallMs": 5719.404499999999
+    }
+  },
+  "finalMetadata": {
+    "baseline": {
+      "snapshots": [
+        {
+          "taskId": "auth",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "f52e1404279994b1f4aeeb158c12d5014b319636d8219b930b1d7e07dbfab52b",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "1a5d8a09664464d7c7c75762d6448416f203b331835d5cc8dc02c01817e588a4"
+        },
+        {
+          "taskId": "pricing",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "56572cf2a91ec93c66d6952606e7f8879371da67f0dbee265953a893b52f8423",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "3fb015f24efe6279b6e6f4c5ba16e87698a2c002f31346a6a7301e4d746ffd31"
+        },
+        {
+          "taskId": "pagination",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "a78ebf4b39b30daa65b808f78f21e657e3fef7ff8785d532de74868e0ccdc066",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "771c6b4002793f46b718c665f2e5765ae962159e30e345f51f5a94a8e93d0840"
+        },
+        {
+          "taskId": "summary",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 10,
+          "permissionSha256": "c02a69e397d4092948c5c3156f77f77f67a3961a0b6e210ce35ea46c387d8953",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "0953ba09b48f81f20e9cecae1f385d317761623257f402ad0821a1dc468351c9"
+        }
+      ],
+      "pwshChildren": 8,
+      "pwshElapsedMs": 6503.7778,
+      "nodeWallMs": 6645.20630000002
+    },
+    "current": {
+      "snapshots": [
+        {
+          "taskId": "auth",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "f52e1404279994b1f4aeeb158c12d5014b319636d8219b930b1d7e07dbfab52b",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "1a5d8a09664464d7c7c75762d6448416f203b331835d5cc8dc02c01817e588a4"
+        },
+        {
+          "taskId": "pricing",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "56572cf2a91ec93c66d6952606e7f8879371da67f0dbee265953a893b52f8423",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "3fb015f24efe6279b6e6f4c5ba16e87698a2c002f31346a6a7301e4d746ffd31"
+        },
+        {
+          "taskId": "pagination",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 12,
+          "permissionSha256": "a78ebf4b39b30daa65b808f78f21e657e3fef7ff8785d532de74868e0ccdc066",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "771c6b4002793f46b718c665f2e5765ae962159e30e345f51f5a94a8e93d0840"
+        },
+        {
+          "taskId": "summary",
+          "verified": true,
+          "reasons": [],
+          "permissionEntries": 10,
+          "permissionSha256": "c02a69e397d4092948c5c3156f77f77f67a3961a0b6e210ce35ea46c387d8953",
+          "repoIdentitySha256": "627685ac2d0165c16900f1f0ad12bac9e2c672fdf400d5baa94bee358872ff8c",
+          "snapshotSha256": "0953ba09b48f81f20e9cecae1f385d317761623257f402ad0821a1dc468351c9"
+        }
+      ],
+      "pwshChildren": 8,
+      "pwshElapsedMs": 5429.872,
+      "nodeWallMs": 5582.412499999977
+    }
+  },
+  "preparation": [
+    {
+      "stage": "seed",
+      "variant": "baseline",
+      "totals": {
+        "executed": 4,
+        "reused": 0,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 21402.391900000002,
+        "identityMs": 0.08990000000000009,
+        "snapshotMs": 20752.00390000001,
+        "executionMs": 1.2018999999991138,
+        "cacheMs": 254.77239999999983
+      },
+      "pwshChildren": 24,
+      "pwshElapsedMs": 20611.453199999993,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 21574.575699999998
+    },
+    {
+      "stage": "seed",
+      "variant": "current",
+      "totals": {
+        "executed": 4,
+        "reused": 0,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 20296.816,
+        "identityMs": 0.15219999999999345,
+        "snapshotMs": 19535.461299999995,
+        "executionMs": 1.1271000000010645,
+        "cacheMs": 320.10149999999976
+      },
+      "pwshChildren": 24,
+      "pwshElapsedMs": 19380.07830000001,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "executed",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 20526.6371
+    },
+    {
+      "stage": "warmup",
+      "variant": "baseline",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 22835.9545,
+        "identityMs": 0.15699999999999648,
+        "snapshotMs": 22393.278199999993,
+        "executionMs": 0,
+        "cacheMs": 64.37240000000065
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 22243.7024,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 23118.2157
+    },
+    {
+      "stage": "warmup",
+      "variant": "current",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 17239.3144,
+        "identityMs": 0.14829999999999188,
+        "snapshotMs": 16779.653299999998,
+        "executionMs": 0,
+        "cacheMs": 66.00919999999951
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 16632.802099999994,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 17492.2258
+    }
+  ],
+  "samples": [
+    {
+      "pair": 1,
+      "position": 1,
+      "variant": "baseline",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 22597.678399999997,
+        "identityMs": 0.14200000000001012,
+        "snapshotMs": 22095.184299999997,
+        "executionMs": 0,
+        "cacheMs": 46.33809999999812
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 21957.651799999996,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 22909.12999999999
+    },
+    {
+      "pair": 1,
+      "position": 2,
+      "variant": "current",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 15107.5575,
+        "identityMs": 0.14820000000000277,
+        "snapshotMs": 14694.914899999998,
+        "executionMs": 0,
+        "cacheMs": 59.690000000000055
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 14569.739699999998,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 15403.165599999993
+    },
+    {
+      "pair": 2,
+      "position": 1,
+      "variant": "current",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 13371.449299999998,
+        "identityMs": 0.09789999999998145,
+        "snapshotMs": 13042.1247,
+        "executionMs": 0,
+        "cacheMs": 39.967299999998886
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 12914.6032,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 13623.141299999988
+    },
+    {
+      "pair": 2,
+      "position": 2,
+      "variant": "baseline",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 23553.7509,
+        "identityMs": 0.09569999999999368,
+        "snapshotMs": 22991.937800000003,
+        "executionMs": 0,
+        "cacheMs": 57.273200000001
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 22853.3102,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 23717.029899999994
+    },
+    {
+      "pair": 3,
+      "position": 1,
+      "variant": "baseline",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 23516.8449,
+        "identityMs": 0.06110000000001037,
+        "snapshotMs": 22821.3806,
+        "executionMs": 0,
+        "cacheMs": 69.02249999999776
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 22677.058400000005,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 23762.119999999995
+    },
+    {
+      "pair": 3,
+      "position": 2,
+      "variant": "current",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 18940.6999,
+        "identityMs": 0.25610000000000355,
+        "snapshotMs": 18174.557800000002,
+        "executionMs": 0,
+        "cacheMs": 75.00860000000193
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 18015.399499999996,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 19425.88519999999
+    },
+    {
+      "pair": 4,
+      "position": 1,
+      "variant": "current",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 16656.0432,
+        "identityMs": 0.11790000000000589,
+        "snapshotMs": 16032.485500000004,
+        "executionMs": 0,
+        "cacheMs": 57.56429999999909
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 15895.819899999999,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 16904.808100000024
+    },
+    {
+      "pair": 4,
+      "position": 2,
+      "variant": "baseline",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 24165.4192,
+        "identityMs": 0.20410000000001105,
+        "snapshotMs": 23751.804500000006,
+        "executionMs": 0,
+        "cacheMs": 58.10619999999972
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 23588.738600000004,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 24374.420600000012
+    },
+    {
+      "pair": 5,
+      "position": 1,
+      "variant": "baseline",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 22480.022800000002,
+        "identityMs": 0.3830000000000098,
+        "snapshotMs": 22044.313599999998,
+        "executionMs": 0,
+        "cacheMs": 63.69720000000052
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 21886.4655,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 22749.549899999984
+    },
+    {
+      "pair": 5,
+      "position": 2,
+      "variant": "current",
+      "totals": {
+        "executed": 0,
+        "reused": 4,
+        "failed": 0,
+        "blocked": 0,
+        "cancelled": 0,
+        "modelCalls": 0,
+        "knownModelCalls": 0,
+        "unknownCallCounts": 0,
+        "usage": null,
+        "totalMs": 12845.190499999999,
+        "identityMs": 0.08250000000001023,
+        "snapshotMs": 12451.834000000003,
+        "executionMs": 0,
+        "cacheMs": 54.80669999999918
+      },
+      "pwshChildren": 16,
+      "pwshElapsedMs": 12321.555300000002,
+      "allTasksReusable": true,
+      "allTasksCurrentSourceValid": true,
+      "tasks": [
+        {
+          "taskId": "auth",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pricing",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "pagination",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        },
+        {
+          "taskId": "summary",
+          "status": "reused",
+          "eligible": true,
+          "currentSourceValid": true
+        }
+      ],
+      "nodeWallMs": 13010.606400000048
+    }
+  ],
+  "totals": {
+    "baseline": {
+      "runs": 5,
+      "nodeWallMedianMs": 23717.029899999994,
+      "reviewMedianMs": 23516.8449,
+      "snapshotMedianMs": 22821.3806,
+      "pwshElapsedMedianMs": 22677.058400000005,
+      "totalNodeWallMs": 117512.25039999998,
+      "totalReviewMs": 116313.71620000001,
+      "executed": 0,
+      "reused": 20,
+      "modelCalls": 0,
+      "actualFreshPwshChildren": 80
+    },
+    "current": {
+      "runs": 5,
+      "nodeWallMedianMs": 15403.165599999993,
+      "reviewMedianMs": 15107.5575,
+      "snapshotMedianMs": 14694.914899999998,
+      "pwshElapsedMedianMs": 14569.739699999998,
+      "totalNodeWallMs": 78367.60660000004,
+      "totalReviewMs": 76920.94039999999,
+      "executed": 0,
+      "reused": 20,
+      "modelCalls": 0,
+      "actualFreshPwshChildren": 80
+    }
+  },
+  "observedMedianDifferenceMs": {
+    "nodeWall": 8313.864300000001,
+    "review": 8409.2874,
+    "snapshot": 8126.4657000000025
+  },
+  "limitations": [
+    "Small deterministic synthetic fixture; no model quality, provider performance, or production speed claim.",
+    "Local observed timings include ordinary machine load and scheduling; no confidence intervals or claimed percentage speedup.",
+    "Native state directories contain private ACL/principal provenance and must not be published; share summary/raw sample JSON only."
+  ]
+}

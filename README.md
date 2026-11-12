@@ -156,6 +156,8 @@ dsh --profile incremental-demo --patch C:\private\incremental.yml
 
 核心公开入口为 `./core` 的 `runReview`、`planReview`；插件入口为 `src/plugin.js`。实现只依赖 Node 内置模块，实际模型执行使用指定 DSH 安装提供的公开包，不捆绑或升级 DSH 核心。
 
+Windows 权限读取现使用直接 .NET API，每次仍启动独立进程、重新读取完整权限；检查时点和次数不变。本机五组配对中，无变化运行的中位总耗时从 23.72 秒降到 15.40 秒。范围、原始数据与复现步骤见[权限读取优化](docs/permission-performance.md)。升级后因实现摘要变化，旧缓存会按原有规则失效一次。
+
 ## 开发诊断与历史记录
 
 这些命令用于开发检查；`demo`、默认 `benchmark` 和显式 `--fixture` 使用确定性规则执行器，**不是 AI 审查**。
